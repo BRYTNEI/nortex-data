@@ -2,6 +2,9 @@
 
 ## En desarrollo
 
+- IMERG: si Earthdata rechaza el token (401/403) se usa la copia pública de NASA POWER y se marca `auth_error_fallback`; el token se limpia de «Bearer», espacios y saltos de línea. La prueba online muestra la causa probable.
+- FAOSTAT: búsqueda de etiquetas exacta y luego parcial; si falla, el error lista las etiquetas que devolvió la API (la ejecución online #3 falló con «elemento ausente: Production»).
+
 - Fuentes nuevas para las decisiones de la v0.7: `enso` (ICEN y ONI, todo el registro), `soilgrids` (WCS, 9 propiedades × 5 profundidades), `srtm` (altitud, pendiente y desnivel), `estacion` (NOAA GSOD de Piura con tratamiento del atributo `I` en lluvia), `power_horario` (T y HR horarias, horas húmedas) y `local` (9 plantillas CSV para reservorio, PCR, turnos, ENFEN, economía, suelo de laboratorio, riego e historial). Catálogo: 78 variables, 13 fuentes.
 - Hallazgos: la altitud SRTM del punto piloto es 196 m (la v0.7 indica 68 m); con POWER horario casi no hay horas con HR ≥ 90 %.
 
