@@ -55,13 +55,28 @@ class _Client:
                     raise RuntimeError(f"FAOSTAT rechazó el token. Renueva FAOSTAT_TOKEN en {_PORTAL}") from None
                 self.login()
 
+    def _code_map(records):
+    result = {}
 
+    for item in records:
+        if item.get("subdimensions"):
+            for subdimension in item["subdimensions"]:
+                label = subdimension.get("label")
+                code = subdimension.get("id") or subdimension.get("code")
 
-def _code_map(records):
-    return {str(item["label"]).casefold(): str(item["code"]) for item in records}
+                if label is not None and code is not None:
+                    result[str(label).casefold()] = str(code)
 
+        else:
+            label = item.get("label")
+            code = item.get("code")
 
-def fetch(aoi, start, end, variables=None):
+            if label is not None and code is not None:
+                result[str(label).casefold()] = str(code)
+
+    return result
+    
+    def fetch(aoi, start, end, variables=None):
     """Consulta indicadores nacionales de Perú por cultivo y año publicado."""
     selected = variables_for("faostat", variables)
     if not selected:
@@ -113,3 +128,5 @@ def fetch(aoi, start, end, variables=None):
                         record.get("Unit", ""), str(record.get("Flag", "national")),
                     ))
     return frame(rows)
+
+
