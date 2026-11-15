@@ -1,0 +1,11 @@
+aois:
+  parcela_01:
+    lat: -5.093608
+    lon: -80.340280
+    elevation_m: 68
+  parcela_poligono:
+    elevation_m: 68
+    geometry:
+      type: Polygon
+      coordinates:
+        - [[-80.341, -5.094], [-80.340, -5.094], [-80.340, -5.093], [-80.341, -5.093], [-80.341, -5.094]]

@@ -1,0 +1,22 @@
+name: Integración online
+on: workflow_dispatch
+jobs:
+  online:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    env:
+      NORTEX_CACHE: "0"
+      EARTHDATA_TOKEN: ${{ secrets.EARTHDATA_TOKEN }}
+      EARTHDATA_USERNAME: ${{ secrets.EARTHDATA_USERNAME }}
+      EARTHDATA_PASSWORD: ${{ secrets.EARTHDATA_PASSWORD }}
+      CDSE_CLIENT_ID: ${{ secrets.CDSE_CLIENT_ID }}
+      CDSE_CLIENT_SECRET: ${{ secrets.CDSE_CLIENT_SECRET }}
+      FAOSTAT_TOKEN: ${{ secrets.FAOSTAT_TOKEN }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install .
+      - run: pip install pytest
+      - run: python -m pytest -m online

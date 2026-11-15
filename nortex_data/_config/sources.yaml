@@ -1,0 +1,9 @@
+{
+  "power": {
+    "endpoint": "https://power.larc.nasa.gov/api/temporal/daily/point",
+    "metadata": "https://power.larc.nasa.gov/api/system/manager/parameters",
+    "product": "POWER Daily AG",
+    "version": "v2",
+    "first": "1981-01-01"
+  }
+}
