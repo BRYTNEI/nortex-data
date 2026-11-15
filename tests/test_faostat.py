@@ -22,3 +22,11 @@ def test_faostat_reauthenticates_and_retries(monkeypatch):
     assert client.get("dimensions/QCL/") == [{"code": "1"}]
     assert request.call_args_list[0].kwargs["headers"]["Authorization"] == "Bearer old"
     assert request.call_args_list[2].kwargs["headers"]["Authorization"] == "Bearer new"
+
+
+def test_code_map_registros_planos_y_subdimensiones():
+    plano = [{"label": "Peru", "code": "170"}]
+    anidado = [{"label": "Countries", "subdimensions": [{"label": "Peru", "id": "170"}]}]
+    assert faostat._code_map(plano) == {"peru": "170"}
+    assert faostat._code_map(anidado) == {"peru": "170"}
+    assert faostat._code_map([{"label": "Sin código"}, {"code": "1"}]) == {}
