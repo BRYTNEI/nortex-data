@@ -29,6 +29,14 @@ La salida contiene `date, aoi_id, lat, lon, source, product, variable, value, un
 | Sentinel-2 | L2A | NDRE y estadísticas de píxeles válidos | ~20 m | Enero de 2025, NDRE válido en tres fechas | Sin CDSE, ventanas COG del polígono vía Earth Search |
 | GAEZ | v4 ImageServer y v5 por COG configurado | Aptitud para cultivo y escenario | Según capa. v5 ofrece capas clave de ~1 km | 125 capas consultadas para arroz, en seis periodos entre 1961 y 2100 | Capas por periodo climático |
 | FAOSTAT | QCL y PP | Área, producción, rendimiento, precio en chacra | Nacional | 2015–2024, 120 valores del portal público | La API autenticada queda por verificar |
+| ENSO | ICEN (ENFEN/IGP) y ONI (NOAA) | Anomalías mensuales | Regional | 1950-01 a 2026-09 | Índice; la clasificación se hace en el motor |
+| SoilGrids | 2.0 por WCS | Textura, COS, pH, densidad, CIC, θ_FC, θ_WP | 250 m | 5 profundidades en el punto piloto | Dato global; laboratorio tiene prioridad |
+| SRTM | GL1 30 m (OpenTopoData) | Altitud, pendiente, desnivel | 30 m | 196 m y 0,6 % en el punto piloto | La v0.7 indica 68 m: revisar |
+| Estación | NOAA GSOD 84401 (Piura) | Tmax, Tmin, Tmedia, rocío, lluvia, viento | Puntual, ~33 km | Últimos 10 años con huecos | Solo validación |
+| POWER horario | Hourly AG | T y HR horarias; horas húmedas | 0.5° × 0.625° | Marzo 2024 verificado | HR regional suavizada |
+| Local | `plantillas/*.csv` | Reservorio, PCR, turnos, ENFEN, economía, suelo de laboratorio, riego, historial | Según dato | Plantillas listas | Requiere datos de ANA, Junta, SIEA y laboratorio |
+
+Las plantillas de datos locales sin API están en `plantillas/` (ver [ficha](docs/fuentes/local.md)).
 
 ## Credenciales
 

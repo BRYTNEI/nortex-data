@@ -10,6 +10,12 @@
 | FAOSTAT | 120 observaciones de Perú de 2015 a 2024, dominios QCL y PP | Verificar la ruta de API autenticada para automatizar nuevas exportaciones |
 | MIDAGRI | Siete indicadores regionales de arroz de la encuesta ESCO, campaña chica 2024 | Verificar costos de mango y limón en San Lorenzo |
 | ECOSTRESS | Capas y solicitud histórica confirmadas en AppEEARS | Descargar y validar las observaciones cuando termine la solicitud |
+| ENSO (ICEN, ONI) | 1950-01 a 2026-09 | Clasificar años El Niño / La Niña Costera en el motor |
+| SoilGrids | Propiedades del suelo del punto piloto (píxel válido a 0,7–1 km) | Sustituir por análisis de laboratorio |
+| SRTM | Altitud 196 m, pendiente 0,6 % | Confirmar coordenadas y altitud del punto (la v0.7 dice 68 m) |
+| Estación NOAA GSOD | Piura, últimos 10 años con huecos | Solicitar SENAMHI (Chulucanas, Partidor) |
+| POWER horario | Marzo 2024 | Humedad local para el indicador de antracnosis |
+| Datos locales | Plantillas listas | Reservorio y Quiroz (ANA), PCR y turnos (Junta), economía (SIEA), suelo y agua (laboratorio) |
 
 ## ECOSTRESS en proceso
 

@@ -2,6 +2,9 @@
 
 ## En desarrollo
 
+- Fuentes nuevas para las decisiones de la v0.7: `enso` (ICEN y ONI, todo el registro), `soilgrids` (WCS, 9 propiedades × 5 profundidades), `srtm` (altitud, pendiente y desnivel), `estacion` (NOAA GSOD de Piura con tratamiento del atributo `I` en lluvia), `power_horario` (T y HR horarias, horas húmedas) y `local` (9 plantillas CSV para reservorio, PCR, turnos, ENFEN, economía, suelo de laboratorio, riego e historial). Catálogo: 78 variables, 13 fuentes.
+- Hallazgos: la altitud SRTM del punto piloto es 196 m (la v0.7 indica 68 m); con POWER horario casi no hay horas con HR ≥ 90 %.
+
 - Corregir `days_gt_p95` y `days_gt_p99`: el percentil se calcula solo con días húmedos (≥ 1 mm), como R95p de ETCCDI. Antes, en San Lorenzo el umbral quedaba cerca de 0 y contaba todos los días con lluvia.
 - Caché por bloque anual cerrado en POWER e IMERG (`utils/blocks.py`). Evita repetir ~365 peticiones OPeNDAP por año en IMERG; los años con días Late no se guardan.
 - POWER aborta ante una unidad inesperada en lugar de convertir kWh → MJ en silencio (EX-14 de la v0.7).
