@@ -85,5 +85,55 @@
       ]
     },
     "login": "https://faostatservices.fao.org/api/v1/auth/login"
+  },
+  "enso": {
+    "product": "ICEN y ONI",
+    "version": "mensual",
+    "first": "1950-01-01",
+    "icen_url": "http://met.igp.gob.pe/datos/ICEN.txt",
+    "oni_url": "https://www.cpc.ncep.noaa.gov/data/indices/oni.ascii.txt"
+  },
+  "soilgrids": {
+    "endpoint": "https://maps.isric.org/mapserv",
+    "product": "SoilGrids",
+    "version": "2.0",
+    "first": "2020-01-01",
+    "window_deg": 0.01,
+    "depths": [
+      "0-5cm",
+      "5-15cm",
+      "15-30cm",
+      "30-60cm",
+      "60-100cm"
+    ]
+  },
+  "srtm": {
+    "endpoint": "https://api.opentopodata.org/v1/srtm30m",
+    "product": "SRTM GL1 30 m",
+    "version": "v3",
+    "first": "2000-02-11",
+    "max_points": 64,
+    "pause_s": 1.0
+  },
+  "estacion": {
+    "endpoint": "https://www.ncei.noaa.gov/access/services/data/v1",
+    "product": "NOAA GSOD",
+    "version": "v1",
+    "first": "1973-01-01",
+    "station": "84401099999",
+    "name": "Piura, aeropuerto Capitán FAP Guillermo Concha Iberico",
+    "lat": -5.20575,
+    "lon": -80.616444
+  },
+  "power_horario": {
+    "endpoint": "https://power.larc.nasa.gov/api/temporal/hourly/point",
+    "product": "POWER Hourly AG",
+    "version": "v2",
+    "first": "2001-01-01"
+  },
+  "local": {
+    "product": "CSV locales (plantillas/)",
+    "version": "1",
+    "first": "1900-01-01"
   }
 }
