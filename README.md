@@ -25,7 +25,7 @@ La salida contiene `date, aoi_id, lat, lon, source, product, variable, value, un
 | NASA POWER | Daily AG | Temperatura, radiación, viento, humedad, presión, lluvia, ET0 | 0.5° × 0.625° meteorología y ~1° solar | Desde 2016-11-15. Meteorología hasta 2026-11-12 y radiación/ET0 hasta 2026-11-10 | Celdas regionales y últimas fechas distintas por variable |
 | SMAP | SPL4SMGP.008 | Humedad superficial y radicular | 9 km | 2016-11-15 a 2026-09-13 por Zarr público | Modelo asimilado, bandas públicas sin bandera de calidad dedicada |
 | IMERG | GPM_3IMERGDF / GPM_3IMERGDL v07 | Precipitación y extremos | 0.1° | 2016-11-15 a 2026-09-14 por Zarr público | El Zarr deja el run sin especificar. Earthdata distingue Final/Late |
-| ECOSTRESS | LSTE / JET / ESI, C2 | LST, ET, ESI y anomalía | 70 m | Pendiente de ejecución autenticada | Paso irregular y máscara de nubes |
+| ECOSTRESS | LSTE / JET / ESI, C2 | LST, ET, ESI y anomalía | 70 m | Solicitud histórica registrada en AppEEARS, en cola en la última revisión | Paso irregular y máscara de nubes |
 | Sentinel-2 | L2A | NDRE y estadísticas de píxeles válidos | ~20 m | Enero de 2025, NDRE válido en tres fechas | Sin CDSE, ventanas COG del polígono vía Earth Search |
 | GAEZ | v4 ImageServer y v5 por COG configurado | Aptitud para cultivo y escenario | Según capa. v5 ofrece capas clave de ~1 km | 125 capas consultadas para arroz, en seis periodos entre 1961 y 2100 | Capas por periodo climático |
 | FAOSTAT | QCL y PP | Área, producción, rendimiento, precio en chacra | Nacional | 2015–2024, 120 valores del portal público | La API autenticada queda por verificar |
@@ -49,6 +49,7 @@ python scripts/build_docs.py --check
 ```
 
 - [Guía de uso](docs/guia_uso.md)
+- [Estado de las fuentes y entrega pendiente de ECOSTRESS](docs/estado_datos.md)
 - [Arquitectura](docs/arquitectura.md)
 - [Catálogo de variables](docs/catalogo_variables.md)
 - [Añadir una fuente](docs/agregar_nueva_fuente.md)

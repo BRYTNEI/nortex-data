@@ -2,6 +2,8 @@
 
 ## En desarrollo
 
+- Documentar las coberturas verificadas y cómo incorporar la solicitud histórica pendiente de ECOSTRESS.
+
 - Validar la exportación de FAOSTAT para Perú e importar CSV puntuales de ECOSTRESS.
 
 - Añadir rutas públicas verificadas de SMAP, IMERG y Sentinel-2.
