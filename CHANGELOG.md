@@ -2,7 +2,8 @@
 
 ## 0.5.0
 
-- Incorporar gaez, faostat y demo.
+- Incorporar GAEZ, FAOSTAT y demo.
+- Verificar la ventana móvil completa de NASA POWER para San Lorenzo.
 
 ## 0.4.0
 

@@ -22,7 +22,7 @@ La salida contiene `date, aoi_id, lat, lon, source, product, variable, value, un
 
 | Fuente | Producto | Variables | Resolución | Rango verificado en San Lorenzo | Limitación |
 | --- | --- | --- | --- | --- | --- |
-| NASA POWER | Daily AG | Temperatura, radiación, viento, humedad, presión, lluvia, ET0 | 0.5° × 0.625° meteorología y ~1° solar | Enero de 2025 completo. En la consulta reciente, meteorología hasta 2026-11-12 y radiación/ET0 hasta 2026-11-10 | Celdas regionales y últimas fechas distintas por variable |
+| NASA POWER | Daily AG | Temperatura, radiación, viento, humedad, presión, lluvia, ET0 | 0.5° × 0.625° meteorología y ~1° solar | Desde 2016-11-15. Meteorología hasta 2026-11-12 y radiación/ET0 hasta 2026-11-10 | Celdas regionales y últimas fechas distintas por variable |
 | SMAP | SPL4SMGP.008 | Humedad superficial y radicular | 9 km | Pendiente de ejecución autenticada | Modelo asimilado, capas publicadas sin bandera de calidad dedicada |
 | IMERG | GPM_3IMERGDF / GPM_3IMERGDL v07 | Precipitación y extremos | 0.1° | Pendiente de ejecución autenticada | Late se usa después del último Final de cada bloque |
 | ECOSTRESS | LSTE / JET / ESI, C2 | LST, ET, ESI y anomalía | 70 m | Pendiente de ejecución autenticada | Paso irregular y máscara de nubes |
