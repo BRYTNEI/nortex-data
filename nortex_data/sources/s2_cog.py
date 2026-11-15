@@ -3,6 +3,7 @@ from collections import defaultdict
 import numpy as np
 import pandas as pd
 
+from nortex_data.utils.blocks import cached_block, concat_blocks
 from nortex_data.utils.core import frame, row, years
 from nortex_data.utils.http import request
 
@@ -73,22 +74,39 @@ def _values(item, geometry):
 
 
 def fetch_public(aoi, geometry, start, end, selected, settings, catalog):
-    """Calcula NDRE leyendo por HTTP únicamente las ventanas COG del AOI."""
-    rows = []
-    for begin, stop in years(start, end):
+    """Calcula NDRE leyendo por HTTP únicamente las ventanas COG del AOI.
+
+    Cada año cerrado se guarda en caché: es la ruta más costosa (tres lecturas por
+    rango HTTP por escena).
+    """
+
+    def block(begin, stop):
+        rows = []
         days = defaultdict(list)
         for item in _items(settings, geometry, begin, stop):
             day = pd.Timestamp(item["properties"]["datetime"]).tz_convert(None).normalize()
             days[day].append(item)
         for day, items in days.items():
             samples = max((_values(item, geometry) for item in items), key=len)
-            values = {"validCount": len(samples)}
-            if len(samples):
-                p10, median, p90 = np.percentile(samples, [10, 50, 90])
-                values.update(mean=samples.mean(), stDev=samples.std(), **{"10": p10, "50": median, "90": p90})
-            for key in selected:
-                entry = catalog[key]
-                flag = "cog_window" if len(samples) else "cog_no_valid_pixels"
-                rows.append(row(aoi, "s2", "sentinel-2-l2a / Earth Search COG",
-                                key, day, values.get(entry["api"]), entry["unit"], flag))
-    return frame(rows)
+            rows.extend(sample_rows(aoi, day, samples, selected, catalog))
+        return frame(rows)
+
+    return concat_blocks(
+        cached_block("s2", aoi, begin, stop,
+                     ["cog", sorted(selected), geometry.__geo_interface__], block)
+        for begin, stop in years(start, end)
+    )
+
+
+def sample_rows(aoi, day, samples, selected, catalog):
+    """Resume los valores NDRE válidos de un día en filas del esquema común."""
+    values = {"validCount": len(samples)}
+    if len(samples):
+        p10, median, p90 = np.percentile(samples, [10, 50, 90])
+        values.update(mean=samples.mean(), stDev=samples.std(),
+                      **{"10": p10, "50": median, "90": p90})
+    flag = "cog_window" if len(samples) else "cog_no_valid_pixels"
+    for key in selected:
+        entry = catalog[key]
+        yield row(aoi, "s2", "sentinel-2-l2a / Earth Search COG",
+                  key, day, values.get(entry["api"]), entry["unit"], flag)

@@ -6,6 +6,7 @@ from nortex_data.derive.esi import anomaly, esi
 from nortex_data.derive.et0 import daylight_seconds
 from nortex_data.sources import power
 from nortex_data.utils.appeears import AppEEARS, band_column
+from nortex_data.utils.blocks import cached_block, concat_blocks
 from nortex_data.utils.core import bounds, config, frame, row, variables_for, years
 
 
@@ -39,11 +40,22 @@ def fetch(aoi, start, end, variables=None):
         if not cloud:
             raise RuntimeError(f"ECOSTRESS: falta la capa cloud de {product}")
         layers = [{"product": product, "layer": name} for name in (data_layer, cloud)]
-        for begin, stop in years(max(start, pd.Timestamp(entry["first"])), end):
-            for table in client.point(aoi, begin, stop, layers):
-                rows.extend(_observations(aoi, key, entry, product, table,
-                                          metadata[data_layer].get("FillValue"),
-                                          metadata[data_layer].get("Units")))
+        fill, units = metadata[data_layer].get("FillValue"), metadata[data_layer].get("Units")
+
+        def block(begin, stop, key=key, entry=entry, product=product, layers=layers,
+                  fill=fill, units=units):
+            return frame(
+                record
+                for table in client.point(aoi, begin, stop, layers)
+                for record in _observations(aoi, key, entry, product, table, fill, units)
+            )
+
+        # Cada año cerrado se guarda en caché: cada tarea de AppEEARS puede tardar minutos.
+        data = concat_blocks(
+            cached_block("ecostress", aoi, begin, stop, [product, data_layer], block)
+            for begin, stop in years(max(start, pd.Timestamp(entry["first"])), end)
+        )
+        rows.extend(tuple(record) for record in data.itertuples(index=False))
     return _complete(aoi, rows, selected)
 
 
