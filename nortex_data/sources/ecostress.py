@@ -1,3 +1,5 @@
+from pathlib import Path
+
 import pandas as pd
 
 from nortex_data.derive.esi import anomaly, esi
@@ -39,22 +41,50 @@ def fetch(aoi, start, end, variables=None):
         layers = [{"product": product, "layer": name} for name in (data_layer, cloud)]
         for begin, stop in years(max(start, pd.Timestamp(entry["first"])), end):
             for table in client.point(aoi, begin, stop, layers):
-                value_col, cloud_col = band_column(table, data_layer), band_column(table, cloud)
-                if not value_col or not cloud_col:
-                    raise RuntimeError(f"ECOSTRESS: CSV sin las capas pedidas de {product}")
-                clear = pd.to_numeric(table[cloud_col], errors="coerce").eq(0)
-                for _, record in table.loc[clear].iterrows():
-                    value = record[value_col]
-                    fill = metadata[data_layer].get("FillValue")
-                    if value == fill or pd.isna(value) or value in (-999, -9999):
-                        continue
-                    day = pd.Timestamp(record["Date"])
-                    if key == "et_real":
-                        value *= daylight_seconds(aoi["lat"], day.dayofyear) / 2.45e6
-                    rows.append(row(aoi, "ecostress", product, key, day,
-                                    value, entry["unit"], "clear"))
+                rows.extend(_observations(aoi, key, entry, product, table, metadata[data_layer].get("FillValue")))
+    return _complete(aoi, rows, selected)
+
+
+def _observations(aoi, key, entry, product, table, fill=None):
+    value_col, cloud_col = band_column(table, entry["api"]), band_column(table, "cloud")
+    if not value_col or not cloud_col:
+        raise RuntimeError(f"ECOSTRESS: CSV sin las capas pedidas de {product}")
+    clear = pd.to_numeric(table[cloud_col], errors="coerce").eq(0)
+    for _, record in table.loc[clear].iterrows():
+        value = pd.to_numeric(record[value_col], errors="coerce")
+        if value == fill or pd.isna(value) or value in (-999, -9999):
+            continue
+        day = pd.Timestamp(record["Date"])
+        if key == "et_real":
+            value *= daylight_seconds(aoi["lat"], day.dayofyear) / 2.45e6
+        yield row(aoi, "ecostress", product, key, day, value, entry["unit"], "clear")
+
+
+def import_point_csv(aoi, paths, variables=None):
+    """Normaliza CSV de resultados puntuales exportados desde AppEEARS."""
+    selected = variables_for("ecostress", variables)
+    catalog = config("variables")
+    rows = []
+    found = set()
+    for path in paths:
+        normalized = Path(path).name.lower().replace(".", "-").replace("_", "-")
+        for key in ("lst", "et_real", "esi"):
+            entry = catalog[key]
+            product = f'{entry["product"]}.{entry["version"]}'
+            if product.lower().replace(".", "-").replace("_", "-") not in normalized:
+                continue
+            table = pd.read_csv(path)
+            rows.extend(_observations(aoi, key, entry, product, table))
+            found.add(key)
+            break
+    if not found:
+        raise ValueError("No se encontraron CSV puntuales de los productos ECOSTRESS esperados")
+    return _complete(aoi, rows, selected)
+
+
+def _complete(aoi, rows, selected):
     result = frame(rows)
-    if keys & {"esi", "esi_anomaly"}:
+    if set(selected) & {"esi", "esi_anomaly"}:
         actual = result[result.variable == "et_real"].set_index("date").value
         index = result[result.variable == "esi"].set_index("date").value
         actual = actual.groupby(actual.index.normalize()).mean()

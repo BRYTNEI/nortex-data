@@ -2,6 +2,8 @@
 
 ## En desarrollo
 
+- Validar la exportación de FAOSTAT para Perú e importar CSV puntuales de ECOSTRESS.
+
 - Añadir rutas públicas verificadas de SMAP, IMERG y Sentinel-2.
 - Incorporar inicio de sesión y reautenticación en FAOSTAT; distinguir el token de AppEEARS.
 - Documentar la Encuesta de Costos de Producción para arroz de Piura.

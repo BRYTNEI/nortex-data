@@ -28,7 +28,7 @@ La salida contiene `date, aoi_id, lat, lon, source, product, variable, value, un
 | ECOSTRESS | LSTE / JET / ESI, C2 | LST, ET, ESI y anomalía | 70 m | Pendiente de ejecución autenticada | Paso irregular y máscara de nubes |
 | Sentinel-2 | L2A | NDRE y estadísticas de píxeles válidos | ~20 m | Enero de 2025, NDRE válido en tres fechas | Sin CDSE, ventanas COG del polígono vía Earth Search |
 | GAEZ | v4 ImageServer y v5 por COG configurado | Aptitud para cultivo y escenario | Según capa. v5 ofrece capas clave de ~1 km | 125 capas consultadas para arroz, en seis periodos entre 1961 y 2100 | Capas por periodo climático |
-| FAOSTAT | QCL y PP | Área, producción, rendimiento, precio en chacra | Nacional | Pendiente de ejecución autenticada | Disponibilidad variable por cultivo e indicador |
+| FAOSTAT | QCL y PP | Área, producción, rendimiento, precio en chacra | Nacional | 2015–2024, 120 valores del portal público | La API autenticada queda por verificar |
 
 ## Credenciales
 
