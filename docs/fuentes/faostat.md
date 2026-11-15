@@ -21,3 +21,5 @@ La API oficial de producción requiere Bearer. Consulta dimensiones y códigos a
 Se verificó la exportación filtrada del portal público para Perú. Los dominios QCL (área, producción y rendimiento) y PP (valor anual en moneda local por tonelada) aportaron 120 valores válidos de 2015 a 2024. Los tres ítems de FAOSTAT fueron Rice, Mangoes, guavas and mangosteens y Lemons and limes. Los dos grupos de frutas conservan el nombre del agregado publicado.
 
 Los resultados procesados se guardaron en data/processed/faostat-peru-qcl-pp.csv y data/processed/faostat-peru-qcl-pp.parquet. El identificador peru_nacional y las coordenadas vacías preservan el alcance nacional.
+
+**Etiquetas de FAOSTAT.** Los elementos, países y cultivos se buscan primero por coincidencia exacta y, si no existe, por la etiqueta más corta que contenga el texto (p. ej. «Production» encuentra «Production Quantity»). Si no hay ninguna, el error lista las etiquetas que devolvió la API para corregir `config/variables.yaml` o `config/sources.yaml`.

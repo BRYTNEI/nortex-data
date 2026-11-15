@@ -1,3 +1,4 @@
+import logging
 import os
 from datetime import date
 
@@ -77,6 +78,23 @@ def _code_map(records):
     return result
 
 
+def _buscar(mapa, nombre, que, domain):
+    """Código de una etiqueta: coincidencia exacta y, si no, la etiqueta más corta que la contenga.
+
+    FAOSTAT cambia a veces el texto de las etiquetas (p. ej. «Production» frente a «Production
+    Quantity»). Si no hay ninguna, el error lista las etiquetas que sí devolvió la API.
+    """
+    clave = nombre.casefold()
+    if clave in mapa:
+        return mapa[clave]
+    candidatos = sorted((k for k in mapa if clave in k), key=len)
+    if candidatos:
+        return mapa[candidatos[0]]
+    disponibles = ", ".join(sorted(mapa)[:30]) or "(ninguna)"
+    raise RuntimeError(f"FAOSTAT {domain}: {que} ausente: {nombre}. Etiquetas que devolvió la API: "
+                       f"{disponibles}")
+
+
 def fetch(aoi, start, end, variables=None):
     """Consulta indicadores nacionales de Perú por cultivo y año publicado."""
     selected = variables_for("faostat", variables)
@@ -106,13 +124,15 @@ def fetch(aoi, start, end, variables=None):
             and (end is None or year <= pd.Timestamp(end).year)
         }
         for key in (key for key in selected if catalog[key]["domain"] == domain):
-            element = codes["element"].get(catalog[key]["api"].casefold())
-            if element is None:
-                raise RuntimeError(f'FAOSTAT {domain}: elemento ausente: {catalog[key]["api"]}')
-            country = codes["area"][settings["country"].casefold()]
+            element = _buscar(codes["element"], catalog[key]["api"], "elemento", domain)
+            country = _buscar(codes["area"], settings["country"], "país", domain)
             for crop in settings["crops"]:
-                item = codes["item"].get(crop.casefold())
-                if item is None or not years:
+                try:
+                    item = _buscar(codes["item"], crop, "cultivo", domain)
+                except RuntimeError as error:
+                    logging.getLogger(__name__).warning("%s", error)
+                    continue
+                if not years:
                     continue
                 params = {
                     f'List{ids["area"]}Codes': country,

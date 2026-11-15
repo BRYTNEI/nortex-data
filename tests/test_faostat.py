@@ -30,3 +30,15 @@ def test_code_map_registros_planos_y_subdimensiones():
     assert faostat._code_map(plano) == {"peru": "170"}
     assert faostat._code_map(anidado) == {"peru": "170"}
     assert faostat._code_map([{"label": "Sin código"}, {"code": "1"}]) == {}
+
+
+def test_buscar_etiqueta_exacta_parcial_y_error_con_disponibles():
+    mapa = {"area harvested": "5312", "production quantity": "5510", "yield": "5412"}
+    assert faostat._buscar(mapa, "Yield", "elemento", "QCL") == "5412"
+    assert faostat._buscar(mapa, "Production", "elemento", "QCL") == "5510"
+    try:
+        faostat._buscar(mapa, "Stocks", "elemento", "QCL")
+    except RuntimeError as error:
+        assert "production quantity" in str(error) and "Stocks" in str(error)
+    else:
+        raise AssertionError("debía fallar")

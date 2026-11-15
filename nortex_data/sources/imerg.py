@@ -1,9 +1,11 @@
+import logging
 import math
 import os
 import re
 from urllib.parse import urlparse
 
 import pandas as pd
+import requests
 from dotenv import load_dotenv
 
 from nortex_data.derive.extremos import extremos
@@ -66,19 +68,40 @@ def fetch(aoi, start, end, variables=None):
     catalog = config("variables")
     start, end = bounds(settings["first"], start, end)
     load_dotenv()
-    token = os.getenv("EARTHDATA_TOKEN")
+    token = _limpiar_token(os.getenv("EARTHDATA_TOKEN"))
+    flag_publico = "daily_utc;run_unspecified"
     if token:
         product = settings["product"]
-        records = _earthdata_records(settings, aoi, start, end, token, catalog["precipitation"]["api"])
-    else:
-        product = "IMERG / NASA POWER"
-        band = settings["public_band"]
-        dataset = daily_point(settings["public_zarr"], aoi, start, end, [band])
-        records = {
-            day: row(aoi, "imerg", product, "precipitation", day, value, "mm/day", "daily_utc;run_unspecified")
-            for day, value in dataset[band].items()
-        }
+        try:
+            records = _earthdata_records(settings, aoi, start, end, token, catalog["precipitation"]["api"])
+            return _with_extremes(records, selected, aoi, catalog, product)
+        except requests.HTTPError as error:
+            if error.response is None or error.response.status_code not in {401, 403}:
+                raise
+            logging.getLogger(__name__).warning(
+                "IMERG: Earthdata rechazó EARTHDATA_TOKEN (%s). Revise que el token no haya vencido "
+                "(dura 60 días), que se copió sin «Bearer» ni espacios, y que la aplicación «NASA GESDISC "
+                "DATA ARCHIVE» esté autorizada en su perfil de Earthdata. Se usa la copia pública de "
+                "NASA POWER.", error.response.status_code)
+            flag_publico += ";auth_error_fallback"
+    product = "IMERG / NASA POWER"
+    band = settings["public_band"]
+    dataset = daily_point(settings["public_zarr"], aoi, start, end, [band])
+    records = {
+        day: row(aoi, "imerg", product, "precipitation", day, value, "mm/day", flag_publico)
+        for day, value in dataset[band].items()
+    }
     return _with_extremes(records, selected, aoi, catalog, product)
+
+
+def _limpiar_token(token):
+    """Quita espacios, saltos de línea y un «Bearer » pegado por error."""
+    if not token:
+        return None
+    token = token.strip()
+    if token.lower().startswith("bearer "):
+        token = token[7:].strip()
+    return token or None
 
 
 def _earthdata_records(settings, aoi, start, end, token, variable):
