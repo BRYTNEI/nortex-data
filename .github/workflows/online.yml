@@ -11,6 +11,9 @@ jobs:
       EARTHDATA_PASSWORD: ${{ secrets.EARTHDATA_PASSWORD }}
       CDSE_CLIENT_ID: ${{ secrets.CDSE_CLIENT_ID }}
       CDSE_CLIENT_SECRET: ${{ secrets.CDSE_CLIENT_SECRET }}
+      APPEEARS_TOKEN: ${{ secrets.APPEEARS_TOKEN }}
+      FAOSTAT_USERNAME: ${{ secrets.FAOSTAT_USERNAME }}
+      FAOSTAT_PASSWORD: ${{ secrets.FAOSTAT_PASSWORD }}
       FAOSTAT_TOKEN: ${{ secrets.FAOSTAT_TOKEN }}
     steps:
       - uses: actions/checkout@v4

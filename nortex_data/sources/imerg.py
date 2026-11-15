@@ -1,12 +1,15 @@
 import math
+import os
 import re
 from urllib.parse import urlparse
 
 import pandas as pd
+from dotenv import load_dotenv
 
 from nortex_data.derive.extremos import extremos
 from nortex_data.utils.core import bounds, config, frame, row, variables_for, years
-from nortex_data.utils.http import credential, request
+from nortex_data.utils.http import request
+from nortex_data.utils.public_zarr import daily_point
 
 _NUMBER = r"[-+]?(?:[0-9]+(?:\.[0-9]*)?|\.[0-9]+)(?:[Ee][-+]?\d+)?"
 
@@ -58,11 +61,27 @@ def fetch(aoi, start, end, variables=None):
     selected = variables_for("imerg", variables)
     if not selected:
         return frame()
-    token = credential("EARTHDATA_TOKEN", "https://urs.earthdata.nasa.gov/")
-    headers = {"Authorization": f"Bearer {token}"}
     settings = config("sources")["imerg"]
     catalog = config("variables")
     start, end = bounds(settings["first"], start, end)
+    load_dotenv()
+    token = os.getenv("EARTHDATA_TOKEN")
+    if token:
+        product = settings["product"]
+        records = _earthdata_records(settings, aoi, start, end, token, catalog["precipitation"]["api"])
+    else:
+        product = "IMERG / NASA POWER"
+        band = settings["public_band"]
+        dataset = daily_point(settings["public_zarr"], aoi, start, end, [band])
+        records = {
+            day: row(aoi, "imerg", product, "precipitation", day, value, "mm/day", "daily_utc;run_unspecified")
+            for day, value in dataset[band].items()
+        }
+    return _with_extremes(records, selected, aoi, catalog, product)
+
+
+def _earthdata_records(settings, aoi, start, end, token, variable):
+    headers = {"Authorization": f"Bearer {token}"}
     records = {}
     for begin, stop in years(start, end):
         final = dict(_granules(settings, settings["product"], aoi, begin, stop))
@@ -72,22 +91,29 @@ def fetch(aoi, start, end, variables=None):
             (settings["product"], "final", final), (settings["late"], "late", late)
         ]:
             for day, url in granules.items():
-                value = _pixel(url, aoi, headers, catalog["precipitation"]["api"])
+                value = _pixel(url, aoi, headers, variable)
                 records[day] = row(aoi, "imerg", product, "precipitation", day, value, "mm/day", flag)
+    return records
+
+
+def _with_extremes(records, selected, aoi, catalog, product):
     data = frame(records.values())
     if data.empty:
         return data
     precipitation = data.set_index("date")["value"]
     summary, monthly = extremos(precipitation)
-    flag = "derived_includes_late" if data.qc_flag.str.startswith("late").any() else "derived_final"
+    if data.qc_flag.str.contains("run_unspecified").any():
+        flag = "derived_run_unspecified"
+    else:
+        flag = "derived_includes_late" if data.qc_flag.str.startswith("late").any() else "derived_final"
     derived = [
-        row(aoi, "imerg", settings["product"], key, data.date.max(), value, catalog[key]["unit"], flag)
+        row(aoi, "imerg", product, key, data.date.max(), value, catalog[key]["unit"], flag)
         for key, value in summary.items() if key in selected
     ]
     if "monthly_precip" in selected:
         derived.extend(
-            row(aoi, "imerg", settings["product"], "monthly_precip", day, value, "mm", flag)
-            for day, value in monthly.items()
+            row(aoi, "imerg", product, "monthly_precip", day, value, "mm", flag)
+            for day, value in monthly.items() if day >= precipitation.index.min()
         )
     if "precipitation" in selected:
         derived.extend(records.values())

@@ -21,9 +21,13 @@ def _fetch(source, aoi, start, end, variables):
         return import_module("nortex_data.sources.faostat").fetch(aoi, start, end, variables)
     begin, stop = bounds(settings["first"], start, end)
     inputs = [source, aoi, str(begin.date()), str(stop.date()), settings, catalog, variables]
+    load_dotenv()
+    inputs.append([bool(os.getenv(name)) for name in (
+        "EARTHDATA_TOKEN", "EARTHDATA_USERNAME", "EARTHDATA_PASSWORD", "APPEEARS_TOKEN",
+        "CDSE_CLIENT_ID", "CDSE_CLIENT_SECRET",
+    )])
     digest = hashlib.sha256(json.dumps(inputs, sort_keys=True).encode()).hexdigest()
     path = Path("cache") / f"{source}-{digest}.parquet"
-    load_dotenv()
     # Las consultas abiertas se repiten para incorporar nuevas publicaciones.
     cache = os.getenv("NORTEX_CACHE") != "0" and stop < bounds(settings["first"])[1] - pd.Timedelta(days=365)
     if cache and path.is_file():

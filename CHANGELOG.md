@@ -1,5 +1,11 @@
 # Registro de cambios
 
+## En desarrollo
+
+- Añadir rutas públicas verificadas de SMAP, IMERG y Sentinel-2.
+- Incorporar inicio de sesión y reautenticación en FAOSTAT; distinguir el token de AppEEARS.
+- Documentar la Encuesta de Costos de Producción para arroz de Piura.
+
 ## 0.5.0
 
 - Incorporar GAEZ, FAOSTAT y demo.

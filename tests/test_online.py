@@ -10,28 +10,36 @@ from nortex_data.utils.core import COLUMNS
 
 @pytest.mark.online
 @pytest.mark.parametrize(
-    ("source", "variables", "credentials"),
+    ("source", "aoi_id", "variables"),
     [
-        ("smap", ["sm_surface", "sm_rootzone"], ("EARTHDATA_TOKEN",)),
-        ("imerg", ["precipitation"], ("EARTHDATA_TOKEN",)),
-        ("ecostress", ["lst"], ("EARTHDATA_TOKEN",)),
-        ("s2", ["ndre", "ndre_count"], ("CDSE_CLIENT_ID", "CDSE_CLIENT_SECRET")),
-        ("faostat", ["production"], ("FAOSTAT_TOKEN",)),
+        ("smap", "parcela_01", ["sm_surface", "sm_rootzone"]),
+        ("imerg", "parcela_01", ["precipitation", "monthly_precip"]),
+        ("ecostress", "parcela_01", ["lst"]),
+        ("s2", "parcela_poligono", ["ndre", "ndre_count"]),
+        ("faostat", "parcela_01", ["production"]),
     ],
 )
-def test_point_source(source, variables, credentials):
+def test_point_source(source, aoi_id, variables):
     load_dotenv()
-    password_auth = source in {"smap", "ecostress"} and all(
-        os.getenv(name) for name in ("EARTHDATA_USERNAME", "EARTHDATA_PASSWORD")
-    )
-    if not password_auth and not all(os.getenv(name) for name in credentials):
-        pytest.skip("Credenciales del proveedor sin configurar")
+    if source == "ecostress" and not (
+        os.getenv("APPEEARS_TOKEN")
+        or (os.getenv("EARTHDATA_USERNAME") and os.getenv("EARTHDATA_PASSWORD"))
+    ):
+        pytest.skip("Configura las credenciales de AppEEARS")
+    if source == "faostat" and not (
+        os.getenv("FAOSTAT_TOKEN")
+        or (os.getenv("FAOSTAT_USERNAME") and os.getenv("FAOSTAT_PASSWORD"))
+    ):
+        pytest.skip("Configura las credenciales de FAOSTAT")
     start, end = ("2024-01-01", "2024-01-31") if source == "faostat" else ("2025-01-01", "2025-01-31")
-    result = get_dataset(source, "parcela_01", start, end, variables=variables)
+    result = get_dataset(source, aoi_id, start, end, variables=variables)
     assert list(result.columns) == COLUMNS
-    assert not result.empty
-    assert result.value.notna().any()
-    assert set(result.variable) <= set(variables)
+    assert set(result.variable) == set(variables)
+    assert result.groupby("variable").value.count().gt(0).all()
+    if source == "smap":
+        assert result.value.dropna().between(0, 1).all()
+    if source == "s2":
+        assert result.loc[result.variable == "ndre", "value"].dropna().between(-1, 1).all()
 
 
 @pytest.mark.online

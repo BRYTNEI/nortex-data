@@ -1,28 +1,60 @@
+import os
 from datetime import date
 
 import pandas as pd
 import requests
+from dotenv import load_dotenv
 
 from nortex_data.utils.core import config, frame, row, variables_for
-from nortex_data.utils.http import credential, request
+from nortex_data.utils.http import request
 
 _PORTAL = "https://www.fao.org/faostat/en/#developer-portal"
 
 
-def _get(settings, path, **params):
-    token = credential("FAOSTAT_TOKEN", _PORTAL)
-    try:
-        response = request("GET", f'{settings["endpoint"]}/{path}', params=params,
-                           headers={"Authorization": f"Bearer {token}"})
-    except requests.HTTPError as error:
-        if error.response.status_code in {401, 403}:
-            raise RuntimeError(f"Renueva FAOSTAT_TOKEN en {_PORTAL}") from None
-        raise
-    return response.json()["data"]
+class _Client:
+    def __init__(self, settings):
+        load_dotenv()
+        self.settings = settings
+        self.token = os.getenv("FAOSTAT_TOKEN")
+        self.username = os.getenv("FAOSTAT_USERNAME")
+        self.password = os.getenv("FAOSTAT_PASSWORD")
+        if not self.token:
+            self.login()
 
+    def login(self):
+        if not (self.username and self.password):
+            raise RuntimeError(
+                f"Configura FAOSTAT_TOKEN vigente o FAOSTAT_USERNAME y FAOSTAT_PASSWORD. {_PORTAL}"
+            )
+        try:
+            payload = request(
+                "POST", self.settings["login"],
+                data={"username": self.username, "password": self.password}, retry=False,
+            ).json()
+        except requests.HTTPError as error:
+            if error.response.status_code in {400, 401, 403}:
+                raise RuntimeError(f"FAOSTAT rechazó el inicio de sesión. Revisa la cuenta en {_PORTAL}") from None
+            raise
+        result = payload.get("data", payload)
+        result = result.get("AuthenticationResult", result)
+        self.token = result.get("AccessToken") or result.get("access_token")
+        if not self.token:
+            raise RuntimeError("FAOSTAT: la respuesta de inicio de sesión no contiene AccessToken")
 
-def _codes(settings, domain, dimension):
-    return _get(settings, f"codes/{dimension}/{domain}", output_type="json")
+    def get(self, path, **params):
+        url = f'{self.settings["endpoint"]}/{path}'
+        for attempt in range(2):
+            try:
+                response = request("GET", url, params=params,
+                                   headers={"Authorization": f"Bearer {self.token}"})
+                return response.json()["data"]
+            except requests.HTTPError as error:
+                if error.response.status_code not in {401, 403}:
+                    raise
+                if attempt or not (self.username and self.password):
+                    raise RuntimeError(f"FAOSTAT rechazó el token. Renueva FAOSTAT_TOKEN en {_PORTAL}") from None
+                self.login()
+
 
 
 def _code_map(records):
@@ -36,10 +68,11 @@ def fetch(aoi, start, end, variables=None):
         return frame()
     settings = config("sources")["faostat"]
     catalog = config("variables")
+    client = _Client(settings)
     rows = []
     domains = sorted({catalog[key]["domain"] for key in selected})
     for domain in domains:
-        dimensions = _get(settings, f"dimensions/{domain}/", output_type="json")
+        dimensions = client.get(f"dimensions/{domain}/", output_type="json")
         labels = _code_map(dimensions)
         ids = {}
         for key, names in settings["dimensions"].items():
@@ -47,7 +80,7 @@ def fetch(aoi, start, end, variables=None):
             if dimension is None:
                 raise RuntimeError(f"FAOSTAT {domain}: no se encontró la dimensión {key}")
             ids[key] = dimension
-        codes = {key: _code_map(_codes(settings, domain, dim)) for key, dim in ids.items()}
+        codes = {key: _code_map(client.get(f"codes/{dim}/{domain}", output_type="json")) for key, dim in ids.items()}
         published = {int(year): code for year, code in codes["year"].items() if year.isdigit()}
         last = min(max(published), date.today().year)
         years = {
@@ -69,9 +102,9 @@ def fetch(aoi, start, end, variables=None):
                     f'List{ids["area"]}Codes': country,
                     f'List{ids["item"]}Codes': item,
                     f'List{ids["element"]}Codes': element,
-                    f'List{ids["year"]}Codes': list(years.values()),
+                    f'List{ids["year"]}Codes': ",".join(years.values()),
                 }
-                data = _get(settings, f"data/{domain}", output_type="json",
+                data = client.get(f"data/{domain}", output_type="json",
                             show_unit="true", show_flags="true", **params)
                 for record in data:
                     rows.append(row(

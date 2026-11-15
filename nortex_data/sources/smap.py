@@ -1,7 +1,11 @@
+import os
+
 import pandas as pd
+from dotenv import load_dotenv
 
 from nortex_data.utils.appeears import AppEEARS, band_column
 from nortex_data.utils.core import bounds, config, frame, row, variables_for, years
+from nortex_data.utils.public_zarr import daily_point
 
 
 def fetch(aoi, start, end, variables=None):
@@ -11,6 +15,18 @@ def fetch(aoi, start, end, variables=None):
         return frame()
     settings = config("sources")["smap"]
     catalog = config("variables")
+    load_dotenv()
+    start, end = bounds(settings["first"], start, end)
+    if not os.getenv("APPEEARS_TOKEN") and not (
+        os.getenv("EARTHDATA_USERNAME") and os.getenv("EARTHDATA_PASSWORD")
+    ):
+        codes = {key: settings["public_bands"][key] for key in selected}
+        data = daily_point(settings["public_zarr"], aoi, start, end, list(codes.values()))
+        return frame(
+            row(aoi, "smap", "SMAP L4 / NASA POWER", key, day, value, catalog[key]["unit"],
+                "daily_utc;qc_unavailable")
+            for key, code in codes.items() for day, value in data[code].items()
+        )
     client = AppEEARS(settings["endpoint"])
     client.authenticate()
     product = f'{settings["product"]}.{settings["version"]}'
@@ -23,7 +39,6 @@ def fetch(aoi, start, end, variables=None):
         raise RuntimeError(f"SMAP: capas configuradas ausentes en {product}")
     quality = [name for name in metadata if "quality_flag" in name.lower()]
     layers = [{"product": product, "layer": name} for name in [*codes.values(), *quality]]
-    start, end = bounds(settings["first"], start, end)
     rows = []
     for begin, stop in years(start, end):
         for table in client.point(aoi, begin, stop, layers):

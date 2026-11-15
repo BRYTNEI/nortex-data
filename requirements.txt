@@ -1,6 +1,7 @@
 requests
 pandas
 numpy
+numcodecs
 pyarrow
 xarray
 earthaccess

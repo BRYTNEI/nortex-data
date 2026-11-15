@@ -1,10 +1,13 @@
+import os
 from datetime import datetime, timezone
 from math import cos, radians
 
 import pandas as pd
 import requests
+from dotenv import load_dotenv
 from shapely.geometry import box, mapping, shape
 
+from nortex_data.sources.s2_cog import fetch_public
 from nortex_data.utils.core import bounds, config, frame, row, variables_for, years
 from nortex_data.utils.http import credential, request
 
@@ -78,6 +81,9 @@ def fetch(aoi, start, end, variables=None):
     settings = config("sources")["s2"]
     catalog = config("variables")
     start, end = bounds(settings["first"], start, end)
+    load_dotenv()
+    if not (os.getenv("CDSE_CLIENT_ID") or os.getenv("CDSE_CLIENT_SECRET")):
+        return fetch_public(aoi, shape(_geometry(aoi)), start, end, selected, settings, catalog)
     credentials = {
         "grant_type": "client_credentials",
         "client_id": credential("CDSE_CLIENT_ID", _PORTAL),
