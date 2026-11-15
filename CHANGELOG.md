@@ -2,6 +2,11 @@
 
 ## En desarrollo
 
+## 0.6.2
+
+- Validar la lectura de IMERG Final por OPeNDAP y la consulta autenticada de producción de FAOSTAT.
+- Integración online #6 sobre `main`: 11 pruebas aprobadas y ECOSTRESS omitida. La importación histórica de ECOSTRESS sigue pendiente de acceso a AppEEARS.
+
 - IMERG: parser OPeNDAP compatible con Hyrax en la nube y diagnóstico con una muestra de la estructura de la respuesta.
 - FAOSTAT: filtros compatibles con la API de datos. GitHub Actions puede iniciar sesión automáticamente con los secretos de usuario y contraseña.
 

@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "nortex-data"
-version = "0.5.0"
+version = "0.6.2"
 description = "Acceso a datos agroclimáticos de NORTEX"
 readme = "README.md"
 requires-python = ">=3.10"
