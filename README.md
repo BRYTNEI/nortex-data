@@ -11,6 +11,7 @@ Fuentes incluidas en esta versión
 - [imerg](docs/fuentes/imerg.md)
 - [smap](docs/fuentes/smap.md)
 - [ecostress](docs/fuentes/ecostress.md)
+- [s2](docs/fuentes/s2.md)
 
 Las credenciales se configuran en .env según las fichas de fuentes.
 

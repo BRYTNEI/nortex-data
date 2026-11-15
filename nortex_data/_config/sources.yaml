@@ -24,5 +24,13 @@
     "product": "ECO_L2T_LSTE",
     "version": "002",
     "first": "2018-07-09"
+  },
+  "s2": {
+    "endpoint": "https://sh.dataspace.copernicus.eu/api/v1/statistics",
+    "token": "https://identity.dataspace.copernicus.eu/auth/realms/CDSE/protocol/openid-connect/token",
+    "product": "sentinel-2-l2a",
+    "version": "L2A",
+    "first": "2015-06-23",
+    "catalog": "https://stac.dataspace.copernicus.eu/v1/search"
   }
 }

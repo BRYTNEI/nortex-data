@@ -7,7 +7,7 @@ import yaml
 from shapely.geometry import shape
 
 COLUMNS = "date aoi_id lat lon source product variable value unit qc_flag".split()
-SOURCES = ("power", "imerg", "smap", "ecostress",)
+SOURCES = ("power", "imerg", "smap", "ecostress", "s2",)
 
 
 def config(name):
