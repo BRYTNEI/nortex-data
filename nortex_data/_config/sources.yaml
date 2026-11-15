@@ -18,5 +18,11 @@
     "late": "GPM_3IMERGDL",
     "version": "07",
     "first": "1998-06-01"
+  },
+  "ecostress": {
+    "endpoint": "https://appeears.earthdatacloud.nasa.gov/api",
+    "product": "ECO_L2T_LSTE",
+    "version": "002",
+    "first": "2018-07-09"
   }
 }

@@ -244,5 +244,56 @@
     "applied_start": "max(first, hoy - 10 años)",
     "method": "https://cmr.earthdata.nasa.gov/search/granules.umm_json",
     "formula": "suma de días de un mes completo"
+  },
+  "lst": {
+    "source": "ecostress",
+    "product": "ECO_L2T_LSTE",
+    "version": "002",
+    "api": "LST",
+    "unit": "K",
+    "spatial": "70 m",
+    "temporal": "irregular",
+    "first": "2018-07-09",
+    "applied_start": "max(first, hoy - 10 años)",
+    "method": "https://appeears.earthdatacloud.nasa.gov/api"
+  },
+  "et_real": {
+    "source": "ecostress",
+    "product": "ECO_L3T_JET",
+    "version": "002",
+    "api": "ETdaily",
+    "unit": "mm/day",
+    "spatial": "70 m",
+    "temporal": "irregular",
+    "first": "2018-07-10",
+    "applied_start": "max(first, hoy - 10 años)",
+    "method": "https://appeears.earthdatacloud.nasa.gov/api",
+    "formula": "ETdaily × segundos de luz / 2.45e6 J/kg"
+  },
+  "esi": {
+    "source": "ecostress",
+    "product": "ECO_L4T_ESI",
+    "version": "002",
+    "api": "ESI",
+    "unit": "1",
+    "spatial": "70 m",
+    "temporal": "irregular",
+    "first": "2018-07-10",
+    "applied_start": "max(first, hoy - 10 años)",
+    "method": "https://appeears.earthdatacloud.nasa.gov/api",
+    "formula": "Si no hay ESI válido: ET real / ET0"
+  },
+  "esi_anomaly": {
+    "source": "ecostress",
+    "product": "ECO_L4T_ESI",
+    "version": "002",
+    "api": null,
+    "unit": "1",
+    "spatial": "70 m",
+    "temporal": "irregular",
+    "first": "2018-07-10",
+    "applied_start": "max(first, hoy - 10 años)",
+    "method": "https://appeears.earthdatacloud.nasa.gov/api",
+    "formula": "(ESI − media) / desviación estándar poblacional"
   }
 }

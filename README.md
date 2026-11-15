@@ -10,6 +10,7 @@ Fuentes incluidas en esta versión
 - [power](docs/fuentes/power.md)
 - [imerg](docs/fuentes/imerg.md)
 - [smap](docs/fuentes/smap.md)
+- [ecostress](docs/fuentes/ecostress.md)
 
 Las credenciales se configuran en .env según las fichas de fuentes.
 

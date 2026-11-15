@@ -23,3 +23,7 @@ Generado con `python scripts/build_docs.py`.
 | days_gt_p99 | imerg | GPM_3IMERGDF | 07 | — | días | 0.1° | intervalo | 1998-06-01 | max(first, hoy - 10 años) | https://cmr.earthdata.nasa.gov/search/granules.umm_json | conteo > cuantil 0.99 |
 | max_dry_days | imerg | GPM_3IMERGDF | 07 | — | días | 0.1° | intervalo | 1998-06-01 | max(first, hoy - 10 años) | https://cmr.earthdata.nasa.gov/search/granules.umm_json | racha máxima con lluvia < 1 mm |
 | monthly_precip | imerg | GPM_3IMERGDF | 07 | — | mm | 0.1° | mensual | 1998-06-01 | max(first, hoy - 10 años) | https://cmr.earthdata.nasa.gov/search/granules.umm_json | suma de días de un mes completo |
+| lst | ecostress | ECO_L2T_LSTE | 002 | LST | K | 70 m | irregular | 2018-07-09 | max(first, hoy - 10 años) | https://appeears.earthdatacloud.nasa.gov/api | — |
+| et_real | ecostress | ECO_L3T_JET | 002 | ETdaily | mm/day | 70 m | irregular | 2018-07-10 | max(first, hoy - 10 años) | https://appeears.earthdatacloud.nasa.gov/api | ETdaily × segundos de luz / 2.45e6 J/kg |
+| esi | ecostress | ECO_L4T_ESI | 002 | ESI | 1 | 70 m | irregular | 2018-07-10 | max(first, hoy - 10 años) | https://appeears.earthdatacloud.nasa.gov/api | Si no hay ESI válido: ET real / ET0 |
+| esi_anomaly | ecostress | ECO_L4T_ESI | 002 | — | 1 | 70 m | irregular | 2018-07-10 | max(first, hoy - 10 años) | https://appeears.earthdatacloud.nasa.gov/api | (ESI − media) / desviación estándar poblacional |
