@@ -980,5 +980,41 @@
     "first": "1900-01-01",
     "applied_start": "todo lo declarado",
     "method": "CSV en data/local según plantillas/"
+  },
+  "reservoir_volume_report": {
+    "source": "senamhi_reportes",
+    "product": "SENAMHI Información hidrológica diaria (PDF)",
+    "version": "2022+",
+    "spatial": "reservorio (San Lorenzo, Poechos)",
+    "temporal": "por reporte",
+    "first": "2016-01-01",
+    "applied_start": "todos los reportes configurados",
+    "method": "https://www.senamhi.gob.pe/load/file/02603SENA-<n>.pdf o data/local/reportes_senamhi",
+    "api": "Volumen almacenado",
+    "unit": "hm³"
+  },
+  "reservoir_pct_report": {
+    "source": "senamhi_reportes",
+    "product": "SENAMHI Información hidrológica diaria (PDF)",
+    "version": "2022+",
+    "spatial": "reservorio (San Lorenzo, Poechos)",
+    "temporal": "por reporte",
+    "first": "2016-01-01",
+    "applied_start": "todos los reportes configurados",
+    "method": "https://www.senamhi.gob.pe/load/file/02603SENA-<n>.pdf o data/local/reportes_senamhi",
+    "api": "Porcentaje de la capacidad",
+    "unit": "%"
+  },
+  "reservoir_capacity_report": {
+    "source": "senamhi_reportes",
+    "product": "SENAMHI Información hidrológica diaria (PDF)",
+    "version": "2022+",
+    "spatial": "reservorio (San Lorenzo, Poechos)",
+    "temporal": "por reporte",
+    "first": "2016-01-01",
+    "applied_start": "todos los reportes configurados",
+    "method": "https://www.senamhi.gob.pe/load/file/02603SENA-<n>.pdf o data/local/reportes_senamhi",
+    "api": "Capacidad útil",
+    "unit": "hm³"
   }
 }

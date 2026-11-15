@@ -203,3 +203,25 @@ def test_local_missing_file_and_columns(tmp_path, monkeypatch):
     (tmp_path / "reservorio.csv").write_text("fecha,volumen\n2026-01-01,1\n", encoding="utf-8")
     with pytest.raises(ValueError, match="faltan columnas"):
         local.fetch(AOI, None, None, ["reservoir_volume"])
+
+
+# --- Reportes hidrológicos de SENAMHI --------------------------------------------------
+
+REPORTE = """INFORMACIÓN HIDROLÓGICA DIARIA 139 - 2022
+Jueves, 26 de mayo del 2022       Hora Local       16:00
+Chira Poechos  438.30 100 445.50
+Chira San Lorenzo 186.04 100 195.60
+Jequetepeque Gallito Ciego 366.09 100 366.60
+"""
+
+
+def test_senamhi_report_parser():
+    from nortex_data.sources.senamhi_reportes import parse_report
+
+    out = parse_report(REPORTE, {"san_lorenzo": "San Lorenzo", "poechos": "Poechos"})
+    by = {r["reservorio"]: r for r in out}
+    assert by["san_lorenzo"] == {"reservorio": "san_lorenzo", "date": pd.Timestamp("2022-05-26"),
+                                 "volumen": 186.04, "porcentaje": 100.0, "capacidad_util": 195.6}
+    assert by["poechos"]["volumen"] == 438.3
+    with pytest.raises(ValueError):
+        parse_report("sin fecha", {"san_lorenzo": "San Lorenzo"})

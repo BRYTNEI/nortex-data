@@ -135,5 +135,19 @@
     "product": "CSV locales (plantillas/)",
     "version": "1",
     "first": "1900-01-01"
+  },
+  "senamhi_reportes": {
+    "product": "SENAMHI, Información hidrológica diaria (PDF)",
+    "version": "2022+",
+    "first": "2016-01-01",
+    "reservorios": {
+      "san_lorenzo": "San Lorenzo",
+      "poechos": "Poechos"
+    },
+    "reportes": [
+      "https://www.senamhi.gob.pe/load/file/02603SENA-2755.pdf",
+      "https://www.senamhi.gob.pe/load/file/02603SENA-2761.pdf",
+      "https://www.senamhi.gob.pe/load/file/02603SENA-2762.pdf"
+    ]
   }
 }

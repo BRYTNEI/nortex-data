@@ -19,7 +19,7 @@ def _fetch(source, aoi, start, end, variables):
     catalog = config("variables")
     # Fuentes sin serie diaria de 10 años: índices de todo el registro (ENSO), propiedades
     # estáticas (suelo, relieve), estadísticas anuales (FAOSTAT) y CSV declarados (local).
-    if source in {"faostat", "enso", "soilgrids", "srtm", "local"}:
+    if source in {"faostat", "enso", "soilgrids", "srtm", "local", "senamhi_reportes"}:
         return import_module(f"nortex_data.sources.{source}").fetch(aoi, start, end, variables)
     begin, stop = bounds(settings["first"], start, end)
     inputs = [source, aoi, str(begin.date()), str(stop.date()), settings, catalog, variables]
