@@ -1,5 +1,9 @@
 # Registro de cambios
 
+## 0.5.0
+
+- Incorporar gaez, faostat y demo.
+
 ## 0.4.0
 
 - Incorporar estadísticas ndre.

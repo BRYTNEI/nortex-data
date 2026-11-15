@@ -32,5 +32,49 @@
     "version": "L2A",
     "first": "2015-06-23",
     "catalog": "https://stac.dataspace.copernicus.eu/v1/search"
+  },
+  "gaez": {
+    "endpoint": "https://gaez-services.fao.org/server/rest/services",
+    "product": "GAEZ",
+    "version": "4",
+    "first": "1981-01-01",
+    "layers": [],
+    "crops": [
+      "Wetland rice"
+    ],
+    "variable": "Crop suitability index in classes; current cropland in grid cell",
+    "input_level": "High",
+    "water_supply": "Gravity Irrigation"
+  },
+  "faostat": {
+    "endpoint": "https://faostatservices.fao.org/api/v1/en",
+    "product": "FAOSTAT",
+    "version": "v1",
+    "first": "1961-01-01",
+    "country": "Peru",
+    "crops": [
+      "Rice",
+      "Mangoes, guavas and mangosteens",
+      "Lemons and limes"
+    ],
+    "dimensions": {
+      "year": [
+        "year",
+        "years"
+      ],
+      "area": [
+        "area",
+        "country",
+        "countries"
+      ],
+      "item": [
+        "item",
+        "items"
+      ],
+      "element": [
+        "element",
+        "elements"
+      ]
+    }
   }
 }

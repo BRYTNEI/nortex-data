@@ -33,3 +33,8 @@ Generado con `python scripts/build_docs.py`.
 | ndre_p90 | s2 | sentinel-2-l2a | L2A | 90 | 1 | 20 m | diaria | 2015-06-23 | max(first, hoy - 10 años) | https://sh.dataspace.copernicus.eu/api/v1/statistics | (B8A − B05) / (B8A + B05), agregado sobre píxeles válidos |
 | ndre_std | s2 | sentinel-2-l2a | L2A | stDev | 1 | 20 m | diaria | 2015-06-23 | max(first, hoy - 10 años) | https://sh.dataspace.copernicus.eu/api/v1/statistics | (B8A − B05) / (B8A + B05), agregado sobre píxeles válidos |
 | ndre_count | s2 | sentinel-2-l2a | L2A | validCount | píxeles | 20 m | diaria | 2015-06-23 | max(first, hoy - 10 años) | https://sh.dataspace.copernicus.eu/api/v1/statistics | (B8A − B05) / (B8A + B05), agregado sobre píxeles válidos |
+| suitability | gaez | GAEZ | 4 | identify | según capa | 5′ v4; 30″ v5 según capa | periodo climático | 1981-01-01 | No aplica | https://gaez-services.fao.org/server/rest/services | — |
+| area_harvested | faostat | QCL | v1 | Area harvested | unidad de la API | Perú | anual | 1961-01-01 | Último año publicado menos 9 | https://faostatservices.fao.org/api/v1/en | — |
+| production | faostat | QCL | v1 | Production | unidad de la API | Perú | anual | 1961-01-01 | Último año publicado menos 9 | https://faostatservices.fao.org/api/v1/en | — |
+| yield | faostat | QCL | v1 | Yield | unidad de la API | Perú | anual | 1961-01-01 | Último año publicado menos 9 | https://faostatservices.fao.org/api/v1/en | — |
+| producer_price | faostat | PP | v1 | Producer Price (LCU/tonne) | unidad de la API | Perú | anual | 1961-01-01 | Último año publicado menos 9 | https://faostatservices.fao.org/api/v1/en | — |
