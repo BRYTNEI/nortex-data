@@ -17,8 +17,10 @@ __all__ = ["get_dataset"]
 def _fetch(source, aoi, start, end, variables):
     settings = config("sources")[source]
     catalog = config("variables")
-    if source == "faostat":
-        return import_module("nortex_data.sources.faostat").fetch(aoi, start, end, variables)
+    # Fuentes sin serie diaria de 10 años: índices de todo el registro (ENSO), propiedades
+    # estáticas (suelo, relieve), estadísticas anuales (FAOSTAT) y CSV declarados (local).
+    if source in {"faostat", "enso", "soilgrids", "srtm", "local"}:
+        return import_module(f"nortex_data.sources.{source}").fetch(aoi, start, end, variables)
     begin, stop = bounds(settings["first"], start, end)
     inputs = [source, aoi, str(begin.date()), str(stop.date()), settings, catalog, variables]
     load_dotenv()
