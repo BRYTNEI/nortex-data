@@ -295,5 +295,83 @@
     "applied_start": "max(first, hoy - 10 años)",
     "method": "https://appeears.earthdatacloud.nasa.gov/api",
     "formula": "(ESI − media) / desviación estándar poblacional"
+  },
+  "ndre": {
+    "source": "s2",
+    "product": "sentinel-2-l2a",
+    "version": "L2A",
+    "api": "mean",
+    "unit": "1",
+    "spatial": "20 m",
+    "temporal": "diaria",
+    "first": "2015-06-23",
+    "applied_start": "max(first, hoy - 10 años)",
+    "method": "https://sh.dataspace.copernicus.eu/api/v1/statistics",
+    "formula": "(B8A − B05) / (B8A + B05), agregado sobre píxeles válidos"
+  },
+  "ndre_median": {
+    "source": "s2",
+    "product": "sentinel-2-l2a",
+    "version": "L2A",
+    "api": "50",
+    "unit": "1",
+    "spatial": "20 m",
+    "temporal": "diaria",
+    "first": "2015-06-23",
+    "applied_start": "max(first, hoy - 10 años)",
+    "method": "https://sh.dataspace.copernicus.eu/api/v1/statistics",
+    "formula": "(B8A − B05) / (B8A + B05), agregado sobre píxeles válidos"
+  },
+  "ndre_p10": {
+    "source": "s2",
+    "product": "sentinel-2-l2a",
+    "version": "L2A",
+    "api": "10",
+    "unit": "1",
+    "spatial": "20 m",
+    "temporal": "diaria",
+    "first": "2015-06-23",
+    "applied_start": "max(first, hoy - 10 años)",
+    "method": "https://sh.dataspace.copernicus.eu/api/v1/statistics",
+    "formula": "(B8A − B05) / (B8A + B05), agregado sobre píxeles válidos"
+  },
+  "ndre_p90": {
+    "source": "s2",
+    "product": "sentinel-2-l2a",
+    "version": "L2A",
+    "api": "90",
+    "unit": "1",
+    "spatial": "20 m",
+    "temporal": "diaria",
+    "first": "2015-06-23",
+    "applied_start": "max(first, hoy - 10 años)",
+    "method": "https://sh.dataspace.copernicus.eu/api/v1/statistics",
+    "formula": "(B8A − B05) / (B8A + B05), agregado sobre píxeles válidos"
+  },
+  "ndre_std": {
+    "source": "s2",
+    "product": "sentinel-2-l2a",
+    "version": "L2A",
+    "api": "stDev",
+    "unit": "1",
+    "spatial": "20 m",
+    "temporal": "diaria",
+    "first": "2015-06-23",
+    "applied_start": "max(first, hoy - 10 años)",
+    "method": "https://sh.dataspace.copernicus.eu/api/v1/statistics",
+    "formula": "(B8A − B05) / (B8A + B05), agregado sobre píxeles válidos"
+  },
+  "ndre_count": {
+    "source": "s2",
+    "product": "sentinel-2-l2a",
+    "version": "L2A",
+    "api": "validCount",
+    "unit": "píxeles",
+    "spatial": "20 m",
+    "temporal": "diaria",
+    "first": "2015-06-23",
+    "applied_start": "max(first, hoy - 10 años)",
+    "method": "https://sh.dataspace.copernicus.eu/api/v1/statistics",
+    "formula": "(B8A − B05) / (B8A + B05), agregado sobre píxeles válidos"
   }
 }

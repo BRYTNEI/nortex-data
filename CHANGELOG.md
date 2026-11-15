@@ -1,5 +1,9 @@
 # Registro de cambios
 
+## 0.4.0
+
+- Incorporar estadísticas ndre.
+
 ## 0.3.0
 
 - Incorporar ecostress y esi.
