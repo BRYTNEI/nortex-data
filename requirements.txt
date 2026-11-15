@@ -10,3 +10,4 @@ shapely
 PyYAML
 python-dotenv
 tenacity
+pypdf

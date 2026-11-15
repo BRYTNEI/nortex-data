@@ -5,11 +5,17 @@
 | NASA POWER | Meteorología, radiación y ET0 con ventana móvil desde el 15/11/2016 | Actualizar conforme publique nuevos días |
 | SMAP | Humedad superficial y radicular por Zarr, hasta el 13/09/2026 | Verificar extracción autenticada de AppEEARS si se necesitan muestras subdiarias |
 | GPM / IMERG | Lluvia y extremos por Zarr, hasta el 14/09/2026 | Verificar la vía autenticada cuando se requiera distinguir Final y Late |
-| Sentinel-2 | NDRE del polígono en enero de 2025, tres fechas válidas | Ampliar el intervalo de extracción |
+| Sentinel-2 | NDRE del polígono en todo 2024 por COG: 73 fechas con escena, 48 con NDRE válido | Probar la Statistical API de CDSE con credenciales y extraer la ventana de 10 años (≈ 1 h la primera vez; luego caché) |
 | GAEZ | 125 capas v4 para arroz inundado | Configurar y verificar las capas COG deseadas de v5 |
 | FAOSTAT | 120 observaciones de Perú de 2015 a 2024, dominios QCL y PP | Verificar la ruta de API autenticada para automatizar nuevas exportaciones |
 | MIDAGRI | Siete indicadores regionales de arroz de la encuesta ESCO, campaña chica 2024 | Verificar costos de mango y limón en San Lorenzo |
 | ECOSTRESS | Capas y solicitud histórica confirmadas en AppEEARS | Descargar y validar las observaciones cuando termine la solicitud |
+| ENSO (ICEN, ONI) | 1950-01 a 2026-09 | Clasificar años El Niño / La Niña Costera en el motor |
+| SoilGrids | Propiedades del suelo del punto piloto (píxel válido a 0,7–1 km) | Sustituir por análisis de laboratorio |
+| SRTM | Altitud 196 m, pendiente 0,6 % | Confirmar coordenadas y altitud del punto (la v0.7 dice 68 m) |
+| Estación NOAA GSOD | Piura, últimos 10 años con huecos | Solicitar SENAMHI (Chulucanas, Partidor) |
+| POWER horario | Marzo 2024 | Humedad local para el indicador de antracnosis |
+| Datos locales | Plantillas listas | Reservorio y Quiroz (ANA), PCR y turnos (Junta), economía (SIEA), suelo y agua (laboratorio) |
 
 ## ECOSTRESS en proceso
 

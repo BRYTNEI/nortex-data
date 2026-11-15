@@ -8,6 +8,7 @@ from dotenv import load_dotenv
 from shapely.geometry import box, mapping, shape
 
 from nortex_data.sources.s2_cog import fetch_public
+from nortex_data.utils.blocks import cached_block, concat_blocks
 from nortex_data.utils.core import bounds, config, frame, row, variables_for, years
 from nortex_data.utils.http import credential, request
 
@@ -98,34 +99,44 @@ def fetch(aoi, start, end, variables=None):
     if local is None:
         return frame()
     start, end = local
-    headers = authenticate()
-    rows = []
-    for begin, stop in years(start, end):
+    auth = {"headers": None}
+
+    def block(begin, stop):
+        if auth["headers"] is None:
+            auth["headers"] = authenticate()
         payload = _payload(settings, aoi, begin, stop)
         try:
-            response = request("POST", settings["endpoint"], json=payload, headers=headers)
+            response = request("POST", settings["endpoint"], json=payload, headers=auth["headers"])
         except requests.HTTPError as error:
             if error.response.status_code != 401:
                 raise
-            headers = authenticate()
-            response = request("POST", settings["endpoint"], json=payload, headers=headers)
-        document = response.json()
-        if document.get("status") not in {None, "OK"}:
-            raise RuntimeError("CDSE no pudo calcular estadísticas NDRE")
-        for record in document["data"]:
-            if "error" in record:
-                if record["error"].get("type") == "NO_DATA":
-                    continue
-                raise RuntimeError(f"Error de CDSE en {record['interval']}")
-            day = pd.Timestamp(record["interval"]["from"]).tz_convert(None).normalize()
-            stats = record["outputs"]["ndre"]["bands"]["B0"]["stats"]
-            count = stats["sampleCount"] - stats["noDataCount"]
-            values = dict(stats, validCount=count)
-            for percentile, value in stats.get("percentiles", {}).items():
-                values[str(int(float(percentile)))] = value
-            for key in selected:
-                entry = catalog[key]
-                value = values.get(entry["api"]) if count or key == "ndre_count" else None
-                rows.append(row(aoi, "s2", settings["product"], key, day, value,
-                                entry["unit"], "ok" if count else "no_valid_pixels"))
-    return frame(rows)
+            auth["headers"] = authenticate()
+            response = request("POST", settings["endpoint"], json=payload, headers=auth["headers"])
+        return frame(statistics_rows(aoi, response.json(), selected, settings, catalog))
+
+    return concat_blocks(
+        cached_block("s2", aoi, begin, stop, ["cdse", sorted(selected), _geometry(aoi)], block)
+        for begin, stop in years(start, end)
+    )
+
+
+def statistics_rows(aoi, document, selected, settings, catalog):
+    """Convierte una respuesta de la Statistical API de CDSE en filas del esquema común."""
+    if document.get("status") not in {None, "OK"}:
+        raise RuntimeError("CDSE no pudo calcular estadísticas NDRE")
+    for record in document["data"]:
+        if "error" in record:
+            if record["error"].get("type") == "NO_DATA":
+                continue
+            raise RuntimeError(f"Error de CDSE en {record['interval']}")
+        day = pd.Timestamp(record["interval"]["from"]).tz_convert(None).normalize()
+        stats = record["outputs"]["ndre"]["bands"]["B0"]["stats"]
+        count = stats["sampleCount"] - stats["noDataCount"]
+        values = dict(stats, validCount=count)
+        for percentile, value in stats.get("percentiles", {}).items():
+            values[str(int(float(percentile)))] = value
+        for key in selected:
+            entry = catalog[key]
+            value = values.get(entry["api"]) if count or key == "ndre_count" else None
+            yield row(aoi, "s2", settings["product"], key, day, value,
+                      entry["unit"], "ok" if count else "no_valid_pixels")

@@ -6,6 +6,7 @@ from nortex_data.derive.esi import anomaly, esi
 from nortex_data.derive.et0 import daylight_seconds
 from nortex_data.sources import power
 from nortex_data.utils.appeears import AppEEARS, band_column
+from nortex_data.utils.blocks import cached_block, concat_blocks
 from nortex_data.utils.core import bounds, config, frame, row, variables_for, years
 
 
@@ -39,25 +40,60 @@ def fetch(aoi, start, end, variables=None):
         if not cloud:
             raise RuntimeError(f"ECOSTRESS: falta la capa cloud de {product}")
         layers = [{"product": product, "layer": name} for name in (data_layer, cloud)]
-        for begin, stop in years(max(start, pd.Timestamp(entry["first"])), end):
-            for table in client.point(aoi, begin, stop, layers):
-                rows.extend(_observations(aoi, key, entry, product, table, metadata[data_layer].get("FillValue")))
+        fill, units = metadata[data_layer].get("FillValue"), metadata[data_layer].get("Units")
+
+        def block(begin, stop, key=key, entry=entry, product=product, layers=layers,
+                  fill=fill, units=units):
+            return frame(
+                record
+                for table in client.point(aoi, begin, stop, layers)
+                for record in _observations(aoi, key, entry, product, table, fill, units)
+            )
+
+        # Cada año cerrado se guarda en caché: cada tarea de AppEEARS puede tardar minutos.
+        data = concat_blocks(
+            cached_block("ecostress", aoi, begin, stop, [product, data_layer], block)
+            for begin, stop in years(max(start, pd.Timestamp(entry["first"])), end)
+        )
+        rows.extend(tuple(record) for record in data.itertuples(index=False))
     return _complete(aoi, rows, selected)
 
 
-def _observations(aoi, key, entry, product, table, fill=None):
+_FLUX_UNITS = {"w/m^2", "w/m2", "w m-2", "wm-2", "w/m²", "w m^-2"}
+_DEPTH_UNITS = {"mm/day", "mm/d", "mm day-1", "mm d-1", "mm"}
+
+
+def _et_conversion(units):
+    """Decide cómo pasar ETdaily a mm/día según la unidad declarada por AppEEARS.
+
+    Devuelve ``("flux", flag)`` si llega como flujo medio diurno (W/m²) y hay que
+    multiplicar por las horas de luz / λ; ``("depth", flag)`` si ya está en mm/día.
+    Sin unidad declarada (CSV importados a mano) se asume flujo y se marca en ``qc_flag``.
+    """
+    if units is None or str(units).strip() == "":
+        return "flux", "clear;units_assumed_w_m2"
+    normalized = str(units).strip().lower()
+    if normalized in _FLUX_UNITS:
+        return "flux", "clear"
+    if normalized in _DEPTH_UNITS:
+        return "depth", "clear"
+    raise ValueError(f"ECOSTRESS: unidad de ETdaily no reconocida: {units!r}")
+
+
+def _observations(aoi, key, entry, product, table, fill=None, units=None):
     value_col, cloud_col = band_column(table, entry["api"]), band_column(table, "cloud")
     if not value_col or not cloud_col:
         raise RuntimeError(f"ECOSTRESS: CSV sin las capas pedidas de {product}")
+    mode, flag = _et_conversion(units) if key == "et_real" else (None, "clear")
     clear = pd.to_numeric(table[cloud_col], errors="coerce").eq(0)
     for _, record in table.loc[clear].iterrows():
         value = pd.to_numeric(record[value_col], errors="coerce")
         if value == fill or pd.isna(value) or value in (-999, -9999):
             continue
         day = pd.Timestamp(record["Date"])
-        if key == "et_real":
+        if mode == "flux":
             value *= daylight_seconds(aoi["lat"], day.dayofyear) / 2.45e6
-        yield row(aoi, "ecostress", product, key, day, value, entry["unit"], "clear")
+        yield row(aoi, "ecostress", product, key, day, value, entry["unit"], flag)
 
 
 def import_point_csv(aoi, paths, variables=None):

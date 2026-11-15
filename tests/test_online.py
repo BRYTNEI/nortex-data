@@ -47,3 +47,21 @@ def test_gaez_pixel():
     aoi = {"lat": -5.093608, "lon": -80.340280}
     endpoint = "https://gaez-services.fao.org/server/rest/services/res05/ImageServer"
     assert float(_sample(endpoint, aoi, 288)) >= 0
+
+
+@pytest.mark.online
+@pytest.mark.parametrize(
+    ("source", "variables", "start", "end"),
+    [
+        ("enso", ["icen", "oni"], "2023-01-01", "2023-12-31"),
+        ("srtm", ["elevation", "slope"], None, None),
+        ("soilgrids", ["soil_theta_fc", "soil_theta_wp"], None, None),
+        ("estacion", ["station_tmax", "station_tmin"], "2024-01-01", "2024-01-31"),
+        ("power_horario", ["hours_rh90"], "2024-01-01", "2024-01-31"),
+    ],
+)
+def test_decision_sources(source, variables, start, end):
+    result = get_dataset(source, "parcela_01", start, end, variables=variables)
+    assert list(result.columns) == COLUMNS
+    assert set(result.variable) == set(variables)
+    assert result.value.notna().any()

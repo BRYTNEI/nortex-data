@@ -17,8 +17,10 @@ __all__ = ["get_dataset"]
 def _fetch(source, aoi, start, end, variables):
     settings = config("sources")[source]
     catalog = config("variables")
-    if source == "faostat":
-        return import_module("nortex_data.sources.faostat").fetch(aoi, start, end, variables)
+    # Fuentes sin serie diaria de 10 años: índices de todo el registro (ENSO), propiedades
+    # estáticas (suelo, relieve), estadísticas anuales (FAOSTAT) y CSV declarados (local).
+    if source in {"faostat", "enso", "soilgrids", "srtm", "local", "senamhi_reportes"}:
+        return import_module(f"nortex_data.sources.{source}").fetch(aoi, start, end, variables)
     begin, stop = bounds(settings["first"], start, end)
     inputs = [source, aoi, str(begin.date()), str(stop.date()), settings, catalog, variables]
     load_dotenv()
@@ -46,8 +48,20 @@ def _fetch(source, aoi, start, end, variables):
     return result
 
 
-def get_dataset(source=None, aoi_id=None, start=None, end=None, *, variables=None, aoi_path=None):
+def get_dataset(source=None, aoi_id=None, start=None, end=None, *, variables=None, aoi_path=None,
+                historico=False):
     """Obtiene observaciones por fuente o por identificadores internos de variables."""
+    if historico:
+        # Todo el registro de la fuente (sin el tope de 10 años); se restaura al terminar.
+        previo = os.environ.get("NORTEX_HISTORICO")
+        os.environ["NORTEX_HISTORICO"] = "1"
+        try:
+            return get_dataset(source, aoi_id, start, end, variables=variables, aoi_path=aoi_path)
+        finally:
+            if previo is None:
+                os.environ.pop("NORTEX_HISTORICO", None)
+            else:
+                os.environ["NORTEX_HISTORICO"] = previo
     aois = load_aois(aoi_path)
     if aoi_id not in aois:
         raise ValueError(f"AOI no configurado: {aoi_id}. Opciones: {', '.join(aois)}")

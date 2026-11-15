@@ -23,3 +23,21 @@ def test_extremes_respect_missing_days():
     metrics, _ = extremos(series.drop(series.index[4]))
     assert metrics["rx1day"] == pytest.approx(5)
     assert pd.isna(metrics["rx5day"])
+
+
+def test_extremes_percentiles_use_wet_days_only():
+    # Clima seco: 95 días sin lluvia y 5 días húmedos. Con todos los días el p95 sería
+    # ~0,1 mm y contaría los 5 días; con días húmedos (>= 1 mm) solo supera el evento mayor.
+    values = [0.0] * 95 + [2.0, 4.0, 6.0, 8.0, 50.0]
+    series = pd.Series(values, index=pd.date_range("2025-01-01", periods=100))
+    metrics, _ = extremos(series)
+    assert metrics["days_gt_p95"] == 1
+    assert metrics["days_gt_p99"] == 1
+    assert metrics["max_dry_days"] == 95
+
+
+def test_extremes_without_wet_days():
+    series = pd.Series([0.0, 0.2, 0.0], index=pd.date_range("2025-01-01", periods=3))
+    metrics, _ = extremos(series)
+    assert pd.isna(metrics["days_gt_p95"])
+    assert metrics["max_dry_days"] == 3

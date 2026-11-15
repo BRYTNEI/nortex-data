@@ -1,5 +1,17 @@
 # FAOSTAT
 
+| Campo | Valor |
+| :-- | :-- |
+| Endpoint | `faostatservices.fao.org/api/v1/en` (`dimensions`, `codes`, `data`) |
+| Autenticación | `FAOSTAT_TOKEN` o `FAOSTAT_USERNAME` + `FAOSTAT_PASSWORD` |
+| Producto / versión | Dominios QCL y PP |
+| Resolución | Nacional (Perú), anual |
+| Límites de uso | Códigos descubiertos por API; reintento único ante 401/403 |
+| Ventana aplicada | Últimos 10 años publicados |
+| Rango real obtenido | 2015–2024 por exportación del portal público; API autenticada pendiente |
+| Caché | Consulta completa (`get_dataset`) |
+| Limitación | Precios nacionales, no de San Lorenzo; usar SIEA para Piura |
+
 Producto y variables de origen: QCL y PP; área cosechada, producción, rendimiento y precio.
 
 La API oficial de producción requiere Bearer. Consulta dimensiones y códigos antes de filtrar datos por área, elemento, cultivo y año. El cliente acepta un token externo o un par de usuario y contraseña. Con el par, obtiene AccessToken en POST /auth/login y reactiva la sesión una vez frente a un rechazo del token. El contrato consultado no expone una operación independiente de renovación. La API autenticada no se verificó en este equipo.

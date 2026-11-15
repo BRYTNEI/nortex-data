@@ -7,6 +7,7 @@ import pandas as pd
 from dotenv import load_dotenv
 
 from nortex_data.derive.extremos import extremos
+from nortex_data.utils.blocks import cached_block, concat_blocks
 from nortex_data.utils.core import bounds, config, frame, row, variables_for, years
 from nortex_data.utils.http import request
 from nortex_data.utils.public_zarr import daily_point
@@ -82,8 +83,9 @@ def fetch(aoi, start, end, variables=None):
 
 def _earthdata_records(settings, aoi, start, end, token, variable):
     headers = {"Authorization": f"Bearer {token}"}
-    records = {}
-    for begin, stop in years(start, end):
+
+    def block(begin, stop):
+        records = {}
         final = dict(_granules(settings, settings["product"], aoi, begin, stop))
         late_start = max(final, default=begin - pd.Timedelta(days=1)) + pd.Timedelta(days=1)
         late = dict(_granules(settings, settings["late"], aoi, late_start, stop)) if late_start <= stop else {}
@@ -93,7 +95,16 @@ def _earthdata_records(settings, aoi, start, end, token, variable):
             for day, url in granules.items():
                 value = _pixel(url, aoi, headers, variable)
                 records[day] = row(aoi, "imerg", product, "precipitation", day, value, "mm/day", flag)
-    return records
+        return frame(records.values())
+
+    # Un año cerrado y 100 % Final se guarda en caché: evita repetir ~365 peticiones
+    # OPeNDAP por año. Si contiene días Late, se vuelve a pedir hasta que Final los reemplace.
+    data = concat_blocks(
+        cached_block("imerg", aoi, begin, stop, [settings["product"], settings["version"], variable],
+                     block, cacheable=lambda df: not df["qc_flag"].str.contains("late").any())
+        for begin, stop in years(start, end)
+    )
+    return {record[0]: tuple(record) for record in data.itertuples(index=False)}
 
 
 def _with_extremes(records, selected, aoi, catalog, product):

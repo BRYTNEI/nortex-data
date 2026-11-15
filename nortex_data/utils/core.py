@@ -1,3 +1,4 @@
+import os
 from datetime import date
 from importlib.resources import files
 from pathlib import Path
@@ -7,7 +8,10 @@ import yaml
 from shapely.geometry import shape
 
 COLUMNS = "date aoi_id lat lon source product variable value unit qc_flag".split()
-SOURCES = ("power", "imerg", "smap", "ecostress", "s2", "gaez", "faostat",)
+SOURCES = (
+    "power", "imerg", "smap", "ecostress", "s2", "gaez", "faostat",
+    "enso", "soilgrids", "srtm", "estacion", "power_horario", "local", "senamhi_reportes",
+)
 
 
 def config(name):
@@ -45,7 +49,12 @@ def load_aois(path=None):
 def bounds(first, start=None, end=None):
     """Acota el intervalo solicitado al registro y a diez años móviles."""
     today = pd.Timestamp(date.today())
-    lower = max(pd.Timestamp(first), today - pd.DateOffset(years=10))
+    # NORTEX_HISTORICO=1 (o get_dataset(historico=True)) permite todo el registro: los escenarios
+    # por percentil y año análogo de la v0.7 (§6.2) necesitan 30 años o más.
+    if os.getenv("NORTEX_HISTORICO") == "1":
+        lower = pd.Timestamp(first)
+    else:
+        lower = max(pd.Timestamp(first), today - pd.DateOffset(years=10))
     upper = today if end is None else min(today, pd.Timestamp(end).normalize())
     if start is not None:
         lower = max(lower, pd.Timestamp(start).normalize())
