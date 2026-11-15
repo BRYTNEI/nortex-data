@@ -142,3 +142,13 @@ def test_et_conversion_by_declared_unit(units, mode, flag):
 def test_et_conversion_rejects_unknown_unit():
     with pytest.raises(ValueError, match="no reconocida"):
         _et_conversion("kg/m^2/s")
+
+
+def test_historico_permite_todo_el_registro(monkeypatch):
+    monkeypatch.setenv("NORTEX_HISTORICO", "1")
+    lower, _ = bounds("1981-01-01", "1991-01-01")
+    assert lower == pd.Timestamp("1991-01-01")
+    lower, _ = bounds("1981-01-01")
+    assert lower == pd.Timestamp("1981-01-01")
+    monkeypatch.delenv("NORTEX_HISTORICO")
+    assert bounds("1981-01-01", "1991-01-01")[0] == TODAY - pd.DateOffset(years=10)

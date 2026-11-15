@@ -48,8 +48,20 @@ def _fetch(source, aoi, start, end, variables):
     return result
 
 
-def get_dataset(source=None, aoi_id=None, start=None, end=None, *, variables=None, aoi_path=None):
+def get_dataset(source=None, aoi_id=None, start=None, end=None, *, variables=None, aoi_path=None,
+                historico=False):
     """Obtiene observaciones por fuente o por identificadores internos de variables."""
+    if historico:
+        # Todo el registro de la fuente (sin el tope de 10 años); se restaura al terminar.
+        previo = os.environ.get("NORTEX_HISTORICO")
+        os.environ["NORTEX_HISTORICO"] = "1"
+        try:
+            return get_dataset(source, aoi_id, start, end, variables=variables, aoi_path=aoi_path)
+        finally:
+            if previo is None:
+                os.environ.pop("NORTEX_HISTORICO", None)
+            else:
+                os.environ["NORTEX_HISTORICO"] = previo
     aois = load_aois(aoi_path)
     if aoi_id not in aois:
         raise ValueError(f"AOI no configurado: {aoi_id}. Opciones: {', '.join(aois)}")
