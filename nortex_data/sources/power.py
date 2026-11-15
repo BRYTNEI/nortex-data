@@ -5,6 +5,7 @@ import pandas as pd
 import requests
 
 from nortex_data.derive.et0 import et0, saturation_vapor_pressure
+from nortex_data.utils.blocks import cached_block, concat_blocks
 from nortex_data.utils.core import bounds, config, frame, row, variables_for, years
 from nortex_data.utils.http import request
 
@@ -47,10 +48,13 @@ def _series(payload, entries):
             code = "PSC"
         unit = reported[code]["units"]
         series = pd.Series(data[code], dtype=float).replace([fill, -999, -9999], np.nan)
-        if key == "solar" and unit in {"kW-hr/m^2/day", "kWh/m^2/day"}:
-            series *= 3.6
-        elif unit.lower() != entry["unit"].lower():
-            raise ValueError(f"POWER: unidad inesperada para {code}: {unit}")
+        # Nunca se convierte en silencio (EX-14 de la v0.7): una unidad distinta suele
+        # indicar una `community` equivocada y debe corregirse en la configuración.
+        if unit.lower() != entry["unit"].lower():
+            raise ValueError(
+                f"POWER: unidad inesperada para {code}: {unit} (se esperaba {entry['unit']}). "
+                "Revisa community=AG en la consulta."
+            )
         values[key] = series
     result = pd.DataFrame(values)
     result.index = pd.to_datetime(result.index, format="%Y%m%d")
@@ -69,11 +73,22 @@ def fetch(aoi, start, end, variables=None):
         keys.update(dict.fromkeys(catalog["et0"]["inputs"]))
     entries = {key: catalog[key] for key in keys if catalog[key]["api"]}
     start, end = bounds(settings["first"], start, end)
+    codes = [entry["api"].split("/")[0] for entry in entries.values()]
+
+    def block(begin, stop):
+        return _block(settings, catalog, aoi, begin, stop, entries, codes, selected)
+
+    return concat_blocks(
+        cached_block("power", aoi, begin, stop, [sorted(selected), codes], block)
+        for begin, stop in years(start, end)
+    )
+
+
+def _block(settings, catalog, aoi, begin, stop, entries, codes, selected):
+    """Descarga y normaliza un bloque anual de POWER."""
     rows = []
-    for begin, stop in years(start, end):
-        payload = _point(settings, aoi, begin, stop, [entry["api"].split("/")[0] for entry in entries.values()])
-        if payload is None:
-            continue
+    payload = _point(settings, aoi, begin, stop, codes)
+    if payload is not None:
         data = _series(payload, entries)
         elevation = aoi["elevation_m"] if "elevation_m" in aoi else payload["geometry"]["coordinates"][2]
         if "et0" in selected:
@@ -82,7 +97,7 @@ def fetch(aoi, start, end, variables=None):
                 / 2 * data.rh2m / 100
             )
             data["et0"] = et0(data.tmax, data.tmin, data.solar, data.wind2m, vapor,
-                             aoi["lat"], elevation, data.index.dayofyear, data.pressure)
+                             aoi["lat"], elevation, data.index.day_of_year, data.pressure)
         for key in selected:
             series = data.loc[data.index >= pd.Timestamp(catalog[key]["first"]), key]
             last = series.last_valid_index()
