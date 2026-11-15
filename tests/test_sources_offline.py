@@ -243,3 +243,27 @@ def test_faostat_discovers_codes_and_limits_ten_years(monkeypatch):
     assert len(data_calls) == 1  # mango y limón no están en los códigos simulados
     years = data_calls[0]["ListyearCodes"].split(",")
     assert years == [str(y) for y in range(2014, 2024)]  # últimos 10 años publicados
+
+
+def test_imerg_token_rechazado_usa_respaldo_publico(monkeypatch, tmp_path):
+    import requests
+
+    monkeypatch.setenv("NORTEX_CACHE_DIR", str(tmp_path))
+    monkeypatch.setenv("EARTHDATA_TOKEN", "  Bearer token-vencido\n")
+    monkeypatch.setattr(imerg, "load_dotenv", lambda: None)
+    vistos = []
+
+    def rechazar(settings, aoi, start, end, token, variable):
+        vistos.append(token)
+        respuesta = requests.Response()
+        respuesta.status_code = 403
+        raise requests.HTTPError("403", response=respuesta)
+
+    monkeypatch.setattr(imerg, "_earthdata_records", rechazar)
+    dias = pd.date_range("2024-01-01", "2024-01-10")
+    monkeypatch.setattr(imerg, "daily_point",
+                        lambda root, aoi, b, e, bands: pd.DataFrame({bands[0]: 1.0}, index=dias))
+    out = imerg.fetch(AOI, "2024-01-01", "2024-01-10", ["precipitation"])
+    assert vistos == ["token-vencido"]  # se limpió «Bearer », espacios y salto de línea
+    assert out.qc_flag.str.contains("auth_error_fallback").all()
+    assert (out["product"] == "IMERG / NASA POWER").all()

@@ -36,6 +36,11 @@ def test_point_source(source, aoi_id, variables):
     assert list(result.columns) == COLUMNS
     assert set(result.variable) == set(variables)
     assert result.groupby("variable").value.count().gt(0).all()
+    if source == "imerg" and os.getenv("EARTHDATA_TOKEN"):
+        assert not result.qc_flag.str.contains("auth_error").any(), (
+            "Earthdata rechazó EARTHDATA_TOKEN (401/403): el token venció, se copió con «Bearer» o "
+            "espacios, o falta autorizar «NASA GESDISC DATA ARCHIVE» en el perfil de Earthdata. Los datos "
+            "salieron de la copia pública de NASA POWER.")
     if source == "smap":
         assert result.value.dropna().between(0, 1).all()
     if source == "s2":
