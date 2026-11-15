@@ -8,6 +8,8 @@ Consulta con `python -m nortex_data fetch --source power --aoi-id parcela_01`.
 Fuentes incluidas en esta versión
 
 - [power](docs/fuentes/power.md)
+- [imerg](docs/fuentes/imerg.md)
+- [smap](docs/fuentes/smap.md)
 
 Las credenciales se configuran en .env según las fichas de fuentes.
 

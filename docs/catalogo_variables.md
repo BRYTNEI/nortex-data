@@ -14,3 +14,12 @@ Generado con `python scripts/build_docs.py`.
 | pressure | power | POWER Daily AG | v2 | PS/PSC | kPa | 0.5° × 0.625° | diaria | 1981-01-01 | max(first, hoy - 10 años) | https://power.larc.nasa.gov/api/temporal/daily/point | — |
 | rain_power | power | POWER Daily AG | v2 | PRECTOTCORR | mm/day | 0.5° × 0.625° | diaria | 1981-01-01 | max(first, hoy - 10 años) | https://power.larc.nasa.gov/api/temporal/daily/point | — |
 | et0 | power | POWER Daily AG | v2 | — | mm/day | 1° solar; 0.5° × 0.625° meteo | diaria | 1984-01-01 | max(first, hoy - 10 años) | https://power.larc.nasa.gov/api/temporal/daily/point | FAO-56 Penman–Monteith; G=0 |
+| sm_surface | smap | SPL4SMGP | 008 | Geophysical_Data_sm_surface | m³/m³ | 9 km | diaria (media de 3 h) | 2015-03-31 | max(first, hoy - 10 años) | https://appeears.earthdatacloud.nasa.gov/api | — |
+| sm_rootzone | smap | SPL4SMGP | 008 | Geophysical_Data_sm_rootzone | m³/m³ | 9 km | diaria (media de 3 h) | 2015-03-31 | max(first, hoy - 10 años) | https://appeears.earthdatacloud.nasa.gov/api | — |
+| precipitation | imerg | GPM_3IMERGDF | 07 | precipitation | mm/day | 0.1° | diaria | 1998-06-01 | max(first, hoy - 10 años) | GES DISC OPeNDAP, descubierto en CMR | — |
+| rx1day | imerg | GPM_3IMERGDF | 07 | — | mm | 0.1° | intervalo | 1998-06-01 | max(first, hoy - 10 años) | https://cmr.earthdata.nasa.gov/search/granules.umm_json | máximo diario |
+| rx5day | imerg | GPM_3IMERGDF | 07 | — | mm | 0.1° | intervalo | 1998-06-01 | max(first, hoy - 10 años) | https://cmr.earthdata.nasa.gov/search/granules.umm_json | máximo de sumas móviles de cinco días completos |
+| days_gt_p95 | imerg | GPM_3IMERGDF | 07 | — | días | 0.1° | intervalo | 1998-06-01 | max(first, hoy - 10 años) | https://cmr.earthdata.nasa.gov/search/granules.umm_json | conteo > cuantil 0.95 |
+| days_gt_p99 | imerg | GPM_3IMERGDF | 07 | — | días | 0.1° | intervalo | 1998-06-01 | max(first, hoy - 10 años) | https://cmr.earthdata.nasa.gov/search/granules.umm_json | conteo > cuantil 0.99 |
+| max_dry_days | imerg | GPM_3IMERGDF | 07 | — | días | 0.1° | intervalo | 1998-06-01 | max(first, hoy - 10 años) | https://cmr.earthdata.nasa.gov/search/granules.umm_json | racha máxima con lluvia < 1 mm |
+| monthly_precip | imerg | GPM_3IMERGDF | 07 | — | mm | 0.1° | mensual | 1998-06-01 | max(first, hoy - 10 años) | https://cmr.earthdata.nasa.gov/search/granules.umm_json | suma de días de un mes completo |

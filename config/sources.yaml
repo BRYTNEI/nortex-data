@@ -5,5 +5,18 @@
     "product": "POWER Daily AG",
     "version": "v2",
     "first": "1981-01-01"
+  },
+  "smap": {
+    "endpoint": "https://appeears.earthdatacloud.nasa.gov/api",
+    "product": "SPL4SMGP",
+    "version": "008",
+    "first": "2015-03-31"
+  },
+  "imerg": {
+    "endpoint": "https://cmr.earthdata.nasa.gov/search/granules.umm_json",
+    "product": "GPM_3IMERGDF",
+    "late": "GPM_3IMERGDL",
+    "version": "07",
+    "first": "1998-06-01"
   }
 }
