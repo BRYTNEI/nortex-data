@@ -1,5 +1,17 @@
 # IMERG
 
+| Campo | Valor |
+| :-- | :-- |
+| Endpoint | CMR (`cmr.earthdata.nasa.gov`) + OPeNDAP de GES DISC; sin token, Zarr público de NASA POWER |
+| Autenticación | `EARTHDATA_TOKEN` (Bearer) para OPeNDAP; ninguna para el Zarr |
+| Producto / versión | GPM_3IMERGDF y GPM_3IMERGDL V07 |
+| Resolución | 0,1° (también en el Zarr público) |
+| Límites de uso | Una petición OPeNDAP por día (~365 por año); respuesta ≤ 16 KB por píxel |
+| Ventana aplicada | máx(1998-06-01, hoy − 10 años) |
+| Rango real obtenido | 2016-11-15 → 2026-09-14 por Zarr; ruta OPeNDAP pendiente de token |
+| Caché | Años cerrados y 100 % Final |
+| Alternativa | Giovanni (promedios de área en CSV) |
+
 Producto y variables de origen: GPM_3IMERGDF y GPM_3IMERGDL v07; precipitation.
 
 CMR devuelve los enlaces OPeNDAP. Se solicita un píxel de 0.1° por día, se usa Late después de Final y se conservan banderas de procedencia. Se pueden calcular extremos sobre cualquier intervalo y acumulados de meses completos. Giovanni es una alternativa para promedios espaciales. La prueba OPeNDAP autenticada sigue pendiente.

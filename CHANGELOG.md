@@ -6,6 +6,10 @@
 - Caché por bloque anual cerrado en POWER e IMERG (`utils/blocks.py`). Evita repetir ~365 peticiones OPeNDAP por año en IMERG; los años con días Late no se guardan.
 - POWER aborta ante una unidad inesperada en lugar de convertir kWh → MJ en silencio (EX-14 de la v0.7).
 - ECOSTRESS lee la unidad declarada de `ETdaily` en AppEEARS: convierte solo si es W/m², acepta mm/día y rechaza otras; los CSV importados sin metadatos quedan marcados `units_assumed_w_m2`.
+- Caché por bloque anual también en SMAP (Zarr y AppEEARS), Sentinel-2 (CDSE y ventanas COG) y ECOSTRESS.
+- Pruebas offline de IMERG (píxel OPeNDAP, enlaces CMR, ruta pública con extremos), SMAP (ruta pública y agregación de 3 horas), Sentinel-2 (respuesta de la Statistical API y resumen COG), GAEZ (`identify` por capa) y FAOSTAT (descubrimiento de códigos y ventana de 10 años).
+- Fichas de fuente con tabla resumen: endpoint, autenticación, producto, resolución, límites, ventana, rango real, caché y alternativas.
+- CI con Python 3.11 y 3.12.
 - Pruebas offline nuevas: regla de 10 años, bloques anuales, AOIs (tamaño y autointersección), valores de relleno, caché (cerrado, reciente, provisional), POWER con una respuesta real guardada, extremos en clima seco y unidades de ECOSTRESS.
 
 - Documentar las coberturas verificadas y cómo incorporar la solicitud histórica pendiente de ECOSTRESS.
