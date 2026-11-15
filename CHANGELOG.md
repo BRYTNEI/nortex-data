@@ -2,6 +2,9 @@
 
 ## En desarrollo
 
+- IMERG: parser OPeNDAP compatible con Hyrax en la nube y diagnóstico con una muestra de la estructura de la respuesta.
+- FAOSTAT: filtros compatibles con la API de datos. GitHub Actions puede iniciar sesión automáticamente con los secretos de usuario y contraseña.
+
 - IMERG: si Earthdata rechaza el token (401/403) se usa la copia pública de NASA POWER y se marca `auth_error_fallback`; el token se limpia de «Bearer», espacios y saltos de línea. La prueba online muestra la causa probable.
 - FAOSTAT: búsqueda de etiquetas exacta y luego parcial; si falla, el error lista las etiquetas que devolvió la API (la ejecución online #3 falló con «elemento ausente: Production»).
 
