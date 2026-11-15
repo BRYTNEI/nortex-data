@@ -134,14 +134,10 @@ def fetch(aoi, start, end, variables=None):
                     continue
                 if not years:
                     continue
-                params = {
-                    f'List{ids["area"]}Codes': country,
-                    f'List{ids["item"]}Codes': item,
-                    f'List{ids["element"]}Codes': element,
-                    f'List{ids["year"]}Codes': ",".join(years.values()),
-                }
-                data = client.get(f"data/{domain}", output_type="json",
-                            show_unit="true", show_flags="true", **params)
+                data = client.get(
+                    f"data/{domain}", output_type="objects", area=country, item=item,
+                    element=element, year=",".join(years.values()),
+                )
                 for record in data:
                     rows.append(row(
                         aoi, "faostat", f"{domain} / {crop}", key,

@@ -42,6 +42,14 @@ def _granules(settings, product, aoi, begin, stop):
             raise RuntimeError(f"{product} {day.date()}: CMR no entregó un enlace OPeNDAP")
 
 
+def _valor_ascii(texto, variable):
+    """Extrae valores de un píxel en ASCII de libdap o Hyrax."""
+    datos = texto.split("-" * 45, 1)[-1]
+    patron = rf"(?m)^[ \t]*([\w.]*)((?:\[[^\]\r\n]*\])+),[ \t]*({_NUMBER})[ \t\r]*$"
+    return [float(valor) for nombre, _, valor in re.findall(patron, datos)
+            if not nombre or nombre.split(".")[-1] == variable]
+
+
 def _pixel(url, aoi, headers, variable):
     lon = min(3599, math.floor((aoi["lon"] + 180) * 10))
     lat = min(1799, math.floor((aoi["lat"] + 90) * 10))
@@ -51,11 +59,21 @@ def _pixel(url, aoi, headers, variable):
         payload = response.raw.read(16385, decode_content=True)
     if len(payload) > 16384:
         raise RuntimeError("IMERG: respuesta OPeNDAP fuera del límite para un píxel")
-    _, separator, data = payload.decode("ascii").partition("---------------------------------------------")
-    values = re.findall(rf"(?m)^\[0\]\[0\](?:\[0\])?,\s*({_NUMBER})\s*$", data)
-    if not separator or len(values) != 1:
-        raise ValueError("IMERG: no se pudo interpretar el píxel OPeNDAP")
-    value = float(values[0])
+    texto = payload.decode("utf-8", errors="replace")
+    if re.search(r"<(?:!doctype\s+html|html\b)", texto[:500], re.IGNORECASE):
+        raise RuntimeError("IMERG: OPeNDAP devolvió una página HTML en lugar de datos. Autorice la "
+                           "aplicación «NASA GESDISC DATA ARCHIVE» en su perfil de Earthdata.")
+    values = _valor_ascii(texto, variable)
+    if len(values) != 1:
+        # Conserva la estructura del mensaje sin volcar contenido arbitrario del servidor.
+        lineas = texto.strip().splitlines()[:8]
+        muestra = " | ".join(
+            re.sub(r"[^\s\[\]{},:;.]+", "…", linea[:80])
+            for linea in lineas
+        )[:400]
+        raise ValueError(f"IMERG: no se pudo interpretar el píxel OPeNDAP ({len(values)} valores). "
+                         f"Inicio de la respuesta: {muestra}")
+    value = values[0]
     return value if value >= 0 else float("nan")
 
 

@@ -69,6 +69,38 @@ def test_imerg_pixel_negative_is_missing(monkeypatch):
     assert np.isnan(imerg._pixel("https://x.nasa.gov/a", AOI, {}, "precipitation"))
 
 
+OPENDAP_ASCII_HYRAX = (
+    b"Dataset: 3B-DAY.MS.MRG.3IMERG.20250101-S000000-E235959.V07B.nc4\n"
+    b"precipitation.time, 1735689600\n"
+    b"precipitation.lon, -80.35\n"
+    b"precipitation.lat, -5.05\n"
+    b"precipitation.precipitation[precipitation.time=1735689600][precipitation.lon=-80.35], 3.25\n"
+)
+OPENDAP_ASCII_ARRAY = b"Dataset: x.nc4\nprecipitation[0][0], 0\n"
+
+
+@pytest.mark.parametrize(("payload", "expected"), [
+    (OPENDAP_ASCII, 12.5),
+    (OPENDAP_ASCII_HYRAX, 3.25),
+    (OPENDAP_ASCII_ARRAY, 0.0),
+])
+def test_imerg_pixel_ascii_formats(monkeypatch, payload, expected):
+    monkeypatch.setattr(imerg, "request", lambda *args, **kwargs: _Response(payload))
+    assert imerg._pixel("https://x.nasa.gov/a", AOI, {}, "precipitation") == expected
+
+
+def test_imerg_pixel_rejects_html(monkeypatch):
+    monkeypatch.setattr(imerg, "request", lambda *args, **kwargs: _Response(b"<!DOCTYPE html><html>"))
+    with pytest.raises(RuntimeError, match="NASA GESDISC DATA ARCHIVE"):
+        imerg._pixel("https://x.nasa.gov/a", AOI, {}, "precipitation")
+
+
+def test_imerg_pixel_reports_unrecognized_shape(monkeypatch):
+    monkeypatch.setattr(imerg, "request", lambda *args, **kwargs: _Response(b"Dataset: x\nformato raro\n"))
+    with pytest.raises(ValueError, match="Inicio de la respuesta: …: … \\| … …"):
+        imerg._pixel("https://x.nasa.gov/a", AOI, {}, "precipitation")
+
+
 def test_imerg_granules_keep_opendap_link(monkeypatch):
     granule = {"umm": {
         "TemporalExtent": {"RangeDateTime": {"BeginningDateTime": "2024-01-02T00:00:00.000Z"}},
@@ -241,7 +273,10 @@ def test_faostat_discovers_codes_and_limits_ten_years(monkeypatch):
     assert out.date.tolist() == [pd.Timestamp("2023-01-01")]
     data_calls = [params for path, params in clients[0].requests if path.startswith("data/")]
     assert len(data_calls) == 1  # mango y limón no están en los códigos simulados
-    years = data_calls[0]["ListyearCodes"].split(",")
+    params = data_calls[0]
+    assert set(params) == {"output_type", "area", "item", "element", "year"}
+    assert params["output_type"] == "objects"
+    years = params["year"].split(",")
     assert years == [str(y) for y in range(2014, 2024)]  # últimos 10 años publicados
 
 
