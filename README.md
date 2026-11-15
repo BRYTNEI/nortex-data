@@ -10,7 +10,7 @@ Copy-Item .env.example .env
 python -m nortex_data fetch --source power --aoi config/aois.yaml --aoi-id parcela_01 --out data/processed
 ```
 
-Tras publicar el repositorio privado, los colaboradores con acceso pueden instalarlo mediante `pip install git+https://github.com/<org>/nortex-data.git`.
+Tras publicar el repositorio privado, los colaboradores con acceso pueden instalarlo mediante `pip install git+https://github.com/BRYTNEI/nortex-data.git`.
 
 ```python
 from nortex_data import get_dataset
@@ -37,7 +37,7 @@ La salida contiene `date, aoi_id, lat, lon, source, product, variable, value, un
 - Crea un cliente OAuth en el panel de Sentinel Hub de CDSE y copia su ID y secreto a `CDSE_CLIENT_ID` y `CDSE_CLIENT_SECRET`. [Autenticación de CDSE](https://documentation.dataspace.copernicus.eu/APIs/SentinelHub/Overview/Authentication.html)
 - Regístrate en el portal de desarrolladores de FAOSTAT y configura `FAOSTAT_TOKEN` o `FAOSTAT_USERNAME` y `FAOSTAT_PASSWORD`. Con usuario y contraseña, el cliente vuelve a iniciar sesión ante un 401/403 y reintenta una vez. [Portal de FAOSTAT](https://www.fao.org/faostat/en/#developer-portal)
 
-Las consultas de varias fuentes conservan los resultados parciales y registran los errores en `datos.attrs["errors"]`. La CLI devuelve código 1 si falla alguna fuente. Define `NORTEX_CACHE=0` para desactivar la caché; si está activa, solo guarda tablas recortadas elegibles en Parquet. Los archivos provistos por las APIs de punto se leen en memoria.
+Las consultas de varias fuentes conservan los resultados parciales y registran los errores en `datos.attrs["errors"]`. La CLI devuelve código 1 si falla alguna fuente. Define `NORTEX_CACHE=0` para desactivar la caché. Si está activa, POWER e IMERG guardan cada año cerrado (fin anterior a hoy − 10 días) como tabla recortada en `cache/*-bloque-*.parquet`; las consultas de los últimos 10 años solo vuelven a pedir el tramo reciente. Los años IMERG con días Late no se guardan hasta que Final los reemplace. Los archivos provistos por las APIs de punto se leen en memoria.
 
 ## Pruebas y documentación
 
