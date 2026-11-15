@@ -10,14 +10,21 @@
     "endpoint": "https://appeears.earthdatacloud.nasa.gov/api",
     "product": "SPL4SMGP",
     "version": "008",
-    "first": "2015-03-31"
+    "first": "2015-03-31",
+    "public_zarr": "https://nasa-power-smap.s3.amazonaws.com/smap/temporal/power_smap_daily_temporal_utc.zarr",
+    "public_bands": {
+      "sm_surface": "SFMC",
+      "sm_rootzone": "RZMC"
+    }
   },
   "imerg": {
     "endpoint": "https://cmr.earthdata.nasa.gov/search/granules.umm_json",
     "product": "GPM_3IMERGDF",
     "late": "GPM_3IMERGDL",
     "version": "07",
-    "first": "1998-06-01"
+    "first": "1998-06-01",
+    "public_zarr": "https://nasa-power.s3.amazonaws.com/imerg/temporal/power_imerg_daily_temporal_utc.zarr",
+    "public_band": "IMERG_PRECTOT"
   },
   "ecostress": {
     "endpoint": "https://appeears.earthdatacloud.nasa.gov/api",
@@ -31,6 +38,52 @@
     "product": "sentinel-2-l2a",
     "version": "L2A",
     "first": "2015-06-23",
-    "catalog": "https://stac.dataspace.copernicus.eu/v1/search"
+    "catalog": "https://stac.dataspace.copernicus.eu/v1/search",
+    "public_catalog": "https://earth-search.aws.element84.com/v1/collections/sentinel-2-l2a/items"
+  },
+  "gaez": {
+    "endpoint": "https://gaez-services.fao.org/server/rest/services",
+    "product": "GAEZ",
+    "version": "4",
+    "first": "1981-01-01",
+    "layers": [],
+    "crops": [
+      "Wetland rice"
+    ],
+    "variable": "Crop suitability index in classes; current cropland in grid cell",
+    "input_level": "High",
+    "water_supply": "Gravity Irrigation"
+  },
+  "faostat": {
+    "endpoint": "https://faostatservices.fao.org/api/v1/en",
+    "product": "FAOSTAT",
+    "version": "v1",
+    "first": "1961-01-01",
+    "country": "Peru",
+    "crops": [
+      "Rice",
+      "Mangoes, guavas and mangosteens",
+      "Lemons and limes"
+    ],
+    "dimensions": {
+      "year": [
+        "year",
+        "years"
+      ],
+      "area": [
+        "area",
+        "country",
+        "countries"
+      ],
+      "item": [
+        "item",
+        "items"
+      ],
+      "element": [
+        "element",
+        "elements"
+      ]
+    },
+    "login": "https://faostatservices.fao.org/api/v1/auth/login"
   }
 }

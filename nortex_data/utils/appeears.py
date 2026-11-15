@@ -3,9 +3,10 @@ import time
 from io import BytesIO
 
 import pandas as pd
+import requests
 from dotenv import load_dotenv
 
-from nortex_data.utils.http import credential, request
+from nortex_data.utils.http import request
 
 _PORTAL = "https://urs.earthdata.nasa.gov/"
 _LIMIT = 5_000_000
@@ -21,11 +22,19 @@ class AppEEARS:
     def authenticate(self):
         """Obtiene el token de sesión de AppEEARS o lee uno configurado."""
         load_dotenv()
-        if os.getenv("EARTHDATA_USERNAME") and os.getenv("EARTHDATA_PASSWORD"):
-            auth = (os.environ["EARTHDATA_USERNAME"], os.environ["EARTHDATA_PASSWORD"])
-            token = request("POST", f"{self.endpoint}/login", auth=auth).json()["token"]
-        else:
-            token = credential("EARTHDATA_TOKEN", _PORTAL + " (o configura EARTHDATA_USERNAME y EARTHDATA_PASSWORD para AppEEARS)")
+        token = os.getenv("APPEEARS_TOKEN")
+        if token:
+            self.headers = {"Authorization": f"Bearer {token}"}
+            return
+        if not (os.getenv("EARTHDATA_USERNAME") and os.getenv("EARTHDATA_PASSWORD")):
+            raise RuntimeError(f"Configura EARTHDATA_USERNAME y EARTHDATA_PASSWORD de {_PORTAL} o APPEEARS_TOKEN.")
+        auth = (os.environ["EARTHDATA_USERNAME"], os.environ["EARTHDATA_PASSWORD"])
+        try:
+            token = request("POST", f"{self.endpoint}/login", auth=auth, retry=False).json()["token"]
+        except requests.HTTPError as error:
+            if error.response.status_code in {401, 403}:
+                raise RuntimeError(f"AppEEARS rechazó el inicio de sesión. Revisa la cuenta en {_PORTAL}") from None
+            raise
         self.headers = {"Authorization": f"Bearer {token}"}
 
 
